@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Gestão de contratos - Jundiá RN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff;--bg2:#f3f6fa;--sf:#fff;--tx:#2b3340;--mu:#6b7686;--bd:#e1e6ee;--nav:#5e1230;--nav2:#8a1c3f;--pr:#8a1c3f;--ln:#f6e6eb;--hv:#faf0f3;--ac:#c9962b;--g:#1e9e57;--y:#e5a400;--r:#d93a3a;--gb:#e3f5ea;--yb:#fff4d6;--rb:#fde4e4;--xb:#e9ecf0}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#10151c;--bg2:#161c25;--sf:#1a212b;--tx:#e6ebf2;--mu:#93a0b0;--bd:#2a3442;--nav:#3d0c1f;--nav2:#6e1a38;--pr:#e58aa8;--ln:#3a1a26;--hv:#2a1f26;--ac:#d9aa45;--gb:#14382a;--yb:#3d3210;--rb:#442020;--xb:#262e39}}
+*,*:before,*:after{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 "Open Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.top{background:var(--nav);color:#fff;display:flex;align-items:center;gap:6px;padding:0 14px;height:48px;position:sticky;top:env(safe-area-inset-top,0px);z-index:10}
+.brand{font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px;margin-right:12px;white-space:nowrap}
+.logo{background:#fff;color:var(--nav);border-radius:6px;width:28px;height:28px;display:grid;place-items:center;font-size:13px;font-weight:700}
+.top .sp{flex:1}.top .ent{font-size:13px;opacity:.9;white-space:nowrap}
+.crumb{background:var(--ln);padding:8px 16px;font-size:12.5px;color:var(--pr)}
+.wrap{max-width:1180px;margin:auto;padding:18px 16px 40px}
+h1.pt{font-size:24px;margin:6px 0 14px;font-weight:600;display:flex;align-items:center;gap:12px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);overflow-x:auto;margin-bottom:16px}
+.tabs button{border:1px solid transparent;border-bottom:0;background:none;color:var(--mu);padding:10px 16px;font:inherit;white-space:nowrap;cursor:pointer;border-radius:6px 6px 0 0;margin-bottom:-1px}
+.tabs button:hover{color:var(--tx)}.tabs button.on{color:var(--tx);font-weight:600;border-color:var(--bd);background:var(--bg);box-shadow:inset 0 2px 0 var(--pr)}
+.cnt{background:var(--bg2);border-radius:10px;padding:0 7px;font-size:11px;margin-left:4px;color:var(--mu)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.tools input{flex:1;min-width:200px}.tools select{width:auto}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:-1px}
+label{display:block;font-size:12px;color:var(--mu);margin:10px 0 3px;font-weight:600}
+.btn{background:var(--pr);color:#fff;border:1px solid var(--pr);border-radius:6px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.btn.s{background:var(--bg);color:var(--pr)}.btn.d{background:var(--r);border-color:var(--r)}.btn.sm{padding:4px 10px;font-size:12.5px}
+.tw{overflow-x:auto;border-top:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{text-align:left;color:var(--pr);font-weight:700;padding:11px 10px;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
+tbody tr{cursor:pointer}tbody tr:nth-child(odd){background:var(--bg2)}tbody tr:hover{background:var(--hv)}
+td a,.num{color:var(--pr);font-weight:600}.sub{font-size:12px;color:var(--mu)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill:before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.pill.g{background:var(--gb);color:var(--g)}.pill.y{background:var(--yb);color:#a87700}.pill.r{background:var(--rb);color:var(--r)}.pill.x{background:var(--xb);color:var(--mu)}
+.chip{display:inline-block;border:1px solid var(--bd);border-radius:5px;padding:0 6px;font-size:12px;color:var(--mu);background:var(--bg)}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:16px;margin-bottom:14px}
+.card h3{margin:0 0 10px;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.kpi{border:1px solid var(--bd);border-radius:8px;padding:14px;border-left:5px solid var(--bd);cursor:pointer;background:var(--sf)}
+.kpi b{font-size:28px;display:block;line-height:1.1}.kpi span{color:var(--mu);font-size:12.5px}
+.kpi.g{border-left-color:var(--g)}.kpi.y{border-left-color:var(--y)}.kpi.r{border-left-color:var(--r)}.kpi.x{border-left-color:var(--mu)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.sb{justify-content:space-between}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:760px){.two{grid-template-columns:1fr}}
+dl{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;margin:0}dt{color:var(--mu);font-weight:600}dd{margin:0}
+.tl{border-left:2px solid var(--ln);margin-left:7px;padding-left:20px}.tl>div{position:relative;margin-bottom:16px}
+.tl>div:before{content:"";position:absolute;left:-27px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--pr);border:2px solid var(--bg)}
+.tl>div.now:before{background:var(--g)}
+.pv{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)}.pv input[type=checkbox]{width:18px;height:18px;flex:none}
+.pv input[type=text]{width:40%}
+.modal{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center;padding:14px;z-index:30}
+.modal>div{background:var(--bg);border-radius:10px;max-width:620px;width:100%;max-height:86vh;overflow:auto;padding:20px}
+.al{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--bd);border-radius:6px;margin-bottom:6px;cursor:pointer}.al:hover{background:var(--hv)}
+.msg{border-radius:6px;padding:9px 12px;font-size:13px;margin:10px 0}.msg.w{background:var(--yb);color:#7a5800}.msg.e{background:var(--rb);color:var(--r)}.msg.i{background:var(--ln);color:var(--pr)}
+.ev{font-size:12px;color:var(--mu);font-style:italic}.emp{text-align:center;color:var(--mu);padding:30px}
+body{background:var(--bg2)}.wrap{padding-top:22px}h1.pt{font-size:22px;color:var(--tx)}
+.crumb{background:none;padding:12px 16px 0;max-width:1180px;margin:auto;color:var(--mu)}
+.top{box-shadow:0 2px 10px #0a1e4a30}
+.tabs{border:0;gap:8px;padding:2px 0 4px}.tabs button{border:1px solid var(--bd);border-radius:20px;background:var(--bg);padding:7px 16px;margin:0;box-shadow:none;transition:.15s}
+.tabs button:hover{border-color:var(--pr);color:var(--pr)}.tabs button.on{background:var(--pr);color:#fff;border-color:var(--pr);box-shadow:0 3px 10px #0a4fb340}.tabs button.on .cnt{background:#ffffff33;color:#fff}
+.card,.kpi{border:0;box-shadow:0 1px 2px #0a1e4a14,0 6px 20px #0a1e4a0d;border-radius:12px}
+.tw{background:var(--sf);border:0;border-radius:12px;box-shadow:0 1px 2px #0a1e4a14,0 6px 20px #0a1e4a0d}.card .tw{box-shadow:none}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mu)}th.sort{cursor:pointer;user-select:none}th.sort:hover{color:var(--pr)}
+tbody tr:nth-child(odd){background:none}td{border-bottom:1px solid var(--bg2)}tbody tr{transition:background .12s}tbody tr:hover td:first-child{box-shadow:inset 3px 0 var(--pr)}
+.kpi{border-left:0;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--bd)}.kpi.g:before{background:var(--g)}.kpi.y:before{background:var(--y)}.kpi.r:before{background:var(--r)}.kpi.x:before{background:var(--mu)}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 8px 26px #0a1e4a22}.kpi b{font-size:32px}
+.btn{border-radius:8px;transition:.15s}.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+input,select,textarea{border-radius:8px;transition:border-color .15s}
+.al,.card[onclick]{transition:.15s}.card[onclick]:hover{transform:translateY(-2px)}
+.bar{height:6px;border-radius:3px;background:var(--bd);overflow:hidden;margin-top:6px;min-width:90px}.bar i{display:block;height:100%;border-radius:3px;transition:width .6s}.bar i.g{background:var(--g)}.bar i.y{background:var(--y)}.bar i.r{background:var(--r)}.bar i.x{background:var(--mu)}
+.big{text-align:center;min-width:90px}.big b{font-size:38px;line-height:1;display:block;color:var(--pr)}.big span{font-size:12px;color:var(--mu)}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}#app>*{animation:fi .28s ease both}.modal>div{animation:fi .22s ease both}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#1b2430;color:#fff;padding:10px 18px;border-radius:24px;box-shadow:0 8px 24px #0005;z-index:40;animation:fi .25s ease both}
+.top{background:linear-gradient(100deg,var(--nav),var(--nav2));border-bottom:3px solid var(--ac);box-shadow:0 4px 14px #4a0f2440}
+.brand .logo{background:var(--ac);color:#fff}
+.tabs button.on{box-shadow:0 4px 12px #8a1c3f45}
+.card,.kpi,.tw{box-shadow:0 1px 2px #3a102014,0 8px 24px #3a10200d}
+.kpi{padding:16px 16px 16px 22px}.kpi.g{background:var(--gb)}.kpi.y{background:var(--yb)}.kpi.r{background:var(--rb)}.kpi.x{background:var(--xb)}
+.kpi.g b{color:var(--g)}.kpi.y b{color:#a87700}.kpi.r b{color:var(--r)}.kpi.on{outline:2px solid var(--pr)}.kpi:hover{box-shadow:0 10px 28px #4a0f2430}
+.card h3{padding-bottom:8px;border-bottom:2px solid var(--ln)}th{border-bottom:2px solid var(--ln)}
+.tl>div:before{background:var(--c,var(--pr))}.tl>div b{color:var(--c,var(--tx))}
+.rm{font-size:11px;color:var(--mu);cursor:pointer;margin-left:6px;text-decoration:underline}.rm:hover{color:var(--r)}
+.nb{background:var(--rb);color:var(--r);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600}
+@media(prefers-color-scheme:dark){.btn:not(.s),.tabs button.on{color:#2a0a16!important}}
+.doc{color:var(--pr);font-weight:600;text-decoration:none}.doc:hover{text-decoration:underline}#ib input{padding:6px 8px}#ib td{padding:5px 6px}.al[style*="--c"]{border-left:4px solid var(--c)}
+.storage-note{font-size:12px;color:var(--mu);margin:8px 0}.backup-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+</style></head><body>
+<div class="top"><div class="brand"><span class="logo">GC</span>Gestão de contratos - Jundiá RN</div><span class="sp"></span><span class="ent">● Prefeitura de Jundiá</span></div>
+<div class="crumb" id="crumb"></div>
+<div class="wrap"><h1 class="pt" id="pt"></h1><div class="tabs" id="nav"></div><div id="app">Carregando…</div></div><div id="mo"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const PROV=["Solicitar plano de trabalho","Consultar interesse da empresa na renovação","Solicitar manifestação da secretaria","Encaminhar para o setor jurídico","Preparar termo aditivo","Providenciar novo processo licitatório"];
+let docs=[],tab="painel",sel=null,q="",fs="",db=null,sample=null,assets=null,alerted=false,col=null,draft=null,pdfFile=null;
+let localDB=null;
+const hoje=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const fimAtual=c=>{let f=c.fim;(c.eventos||[]).forEach(e=>{if(e.novoFim&&(!f||e.novoFim>f))f=e.novoFim});return f};
+const dias=c=>{const f=fimAtual(c);return f?Math.round((new Date(f+"T00:00:00")-hoje())/864e5):null};
+const sem=c=>{const d=dias(c);if(d===null)return["x","Sem vigência"];if(d<0)return["x","Vencido"];if(d<=30)return["r",d+" dias"];if(d<=90)return["y",d+" dias"];return["g",d+" dias"]};
+const br=d=>d?d.split("-").reverse().join("/"):"—";
+const num=c=>(c.tipo==="ata"?"Ata ":"Contrato ")+c.numero;
+const byNum=(a,b)=>String(a.numero).localeCompare(String(b.numero),"pt",{numeric:true});
+const get=id=>docs.find(x=>x.id===id);
+const EVT={"Notificação administrativa":"#d98a00","Termo aditivo de prazo":"#1e9e57","Termo aditivo de valor":"#16857a","Novo processo":"#6d4bb5","Não prorrogação":"#d93a3a","Apostilamento":"#3a78c9","Rescisão":"#555","Outro":"#8a1c3f"};
+const TC=t=>EVT[t]||"#8a1c3f";
+const N=v=>{v=String(v||"").trim();if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");return parseFloat(v)||0};
+const R=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+function totI(){let t=0;document.querySelectorAll("#ib tr").forEach(r=>t+=N(r.querySelector(".iq").value)*N(r.querySelector(".iv").value));const e=$("#ti");if(e)e.textContent=R(t)}
+const rowI=i=>`<tr style="cursor:default"><td><input class="ii" placeholder="Descrição do item" value="${esc(i.item)}"></td><td><input class="iq" inputmode="decimal" value="${esc(i.qtd)}" oninput="totI()"></td><td><input class="iv" inputmode="decimal" value="${esc(i.valor)}" oninput="totI()"></td><td><a class="rm" onclick="this.closest('tr').remove();totI()">✕</a></td></tr>`;
+async function saveI(id){const it=[...document.querySelectorAll("#ib tr")].map(r=>({item:r.querySelector(".ii").value.trim(),qtd:r.querySelector(".iq").value.trim(),valor:r.querySelector(".iv").value.trim()})).filter(x=>x.item||x.qtd||x.valor);await save({...get(id),itens:it})}
+let pdfFiles=[];
+const arqs=c=>c.arqs||(c.pdf?[{nome:"Contrato (PDF)",url:c.pdf}]:[]);
+const askTxt=(m,d="",txt=1)=>new Promise(r=>{$("#mo").innerHTML=`<div class="modal"><div><p>${esc(m)}</p>${txt?`<input id="aq" value="${esc(d)}">`:""}<br><div class="row"><button class="btn" id="ay">OK</button><button class="btn s" id="an">Cancelar</button></div></div></div>`;const f=v=>{$("#mo").innerHTML="";r(v)};$("#ay").onclick=()=>f(txt?$("#aq").value.trim():true);$("#an").onclick=()=>f(null);if(txt)$("#aq").focus()});
+const askOk=m=>askTxt(m,"",0);
+// Armazenamento exclusivamente local: os registros e PDFs ficam no IndexedDB deste navegador.
+function abrirBanco(){return new Promise((resolve,reject)=>{const req=indexedDB.open("GestaoContratosJundiaLocal",1);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains("contratos"))d.createObjectStore("contratos",{keyPath:"id"});if(!d.objectStoreNames.contains("pdfs"))d.createObjectStore("pdfs",{keyPath:"id"})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+function tx(store,mode="readonly"){return localDB.transaction(store,mode).objectStore(store)}
+function dbGetAll(store){return new Promise((resolve,reject)=>{const r=tx(store).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)})}
+function dbPut(store,value){return new Promise((resolve,reject)=>{const r=tx(store,"readwrite").put(value);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+function dbDelete(store,id){return new Promise((resolve,reject)=>{const r=tx(store,"readwrite").delete(id);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)})}
+function dbGet(store,id){return new Promise((resolve,reject)=>{const r=tx(store).get(id);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function up(f){if(f.type!=="application/pdf"&&!/\.pdf$/i.test(f.name))throw new Error("Selecione somente arquivos PDF.");const id="pdf_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8);await dbPut("pdfs",{id,nome:f.name,tipo:f.type||"application/pdf",blob:f});return id}
+function pdfLink(d,label){return `<a class="doc" href="#" onclick="abrirPdf('${esc(d.id||"")}','${esc(d.url||"")}');return false">${label}</a>`}
+async function abrirPdf(id,url){const w=window.open("about:blank","_blank");try{if(!id&&url){if(w)w.location.href=url;else location.href=url;return}const item=await dbGet("pdfs",id);if(!item)throw new Error("O arquivo não foi encontrado neste navegador. Talvez tenha sido removido ou os dados tenham sido apagados.");const u=URL.createObjectURL(item.blob);if(w)w.location.href=u;else{const a=document.createElement("a");a.href=u;a.download=item.nome||"documento.pdf";a.click()}setTimeout(()=>URL.revokeObjectURL(u),120000)}catch(e){if(w)w.close();aviso(e.message||"Não foi possível abrir o PDF.")}}
+async function addA(id){const fl=[...$("#af").files];if(!fl.length)return aviso("Escolha um PDF primeiro.");const b=$("#ba");b.disabled=true;b.textContent="Salvando…";try{const c={...get(id)},L=[...arqs(c)];for(const f of fl)L.push({nome:f.name.replace(/\.pdf$/i,""),id:await up(f)});c.arqs=L;delete c.pdf;await save(c)}catch(e){console.error(e);aviso("Não foi possível anexar: "+(e.message||e.code||"erro"));render()}}
+async function renA(id,i){const c={...get(id)},L=[...arqs(c)];const n=await askTxt("Novo nome do documento:",L[i].nome);if(!n)return;L[i]={...L[i],nome:n};c.arqs=L;delete c.pdf;await save(c)}
+async function delA(id,i){if(!await askOk("Remover este PDF do contrato?"))return;const c={...get(id)},L=[...arqs(c)],old=L.splice(i,1)[0];c.arqs=L;delete c.pdf;await save(c);if(old?.id)await dbDelete("pdfs",old.id)}
+async function delE(id,i){if(!await askOk("Remover esta ocorrência?"))return;const c={...get(id)},old=c.eventos[i];c.eventos=c.eventos.filter((_,j)=>j!==i);await save(c);for(const d of (old?.docs||[]))if(d.id)await dbDelete("pdfs",d.id)}
+let sk="criado",sd=1;
+const cr=c=>c.criado||parseInt(String(c.id).slice(1),36)||0;
+const cmp=(a,b)=>{const r=sk==="criado"?cr(a)-cr(b):sk==="assinatura"?(a.assinatura||"9").localeCompare(b.assinatura||"9"):sk==="numero"?byNum(a,b):sk==="fim"?(fimAtual(a)||"9").localeCompare(fimAtual(b)||"9"):String(a[sk]||"").localeCompare(String(b[sk]||""),"pt");return r*sd};
+const ord=k=>{sd=sk===k?-sd:1;sk=k;render()};
+const th=(k,l)=>(tab==="contrato"||tab==="ata"||tab==="painel")?`<th class="sort" onclick="ord('${k}')">${l}${sk===k?(sd>0?" ▲":" ▼"):""}</th>`:`<th>${l}</th>`;
+const prog=c=>{const f=fimAtual(c);if(!c.inicio||!f)return"";const a=new Date(c.inicio+"T00:00:00"),b=new Date(f+"T00:00:00"),p=Math.max(0,Math.min(100,(hoje()-a)/(b-a)*100));return`<div class="bar"><i class="${sem(c)[0]}" style="width:${p}%"></i></div>`};
+function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2200)}
+async function init(){
+  try{localDB=await abrirBanco();docs=await dbGetAll("contratos");
+    // Migra automaticamente cadastros antigos que estavam no localStorage.
+    if(!docs.length){try{const antigos=JSON.parse(localStorage.getItem("ct")||"[]");for(const c of antigos)await dbPut("contratos",c);docs=antigos;if(antigos.length)localStorage.removeItem("ct")}catch(e){console.warn("Não foi possível migrar os dados antigos",e)}}
+    render();alertas();
+  }catch(e){console.error(e);render();aviso("Não foi possível abrir o armazenamento local deste navegador. Use uma versão atualizada do Chrome ou Edge e verifique se o armazenamento do site está permitido.")}
+}
+async function save(c){
+  c=JSON.parse(JSON.stringify(c));delete c._p;
+  try{await dbPut("contratos",c);const i=docs.findIndex(x=>x.id===c.id);i<0?docs.push(c):docs[i]=c;render();toast("✔ Salvo neste computador");return true}
+  catch(e){console.error(e);aviso("Não foi possível salvar neste computador: "+(e.message||"erro")+". Verifique o espaço disponível no navegador.");return false}
+}
+async function del(id){if(!await askOk("Excluir definitivamente este registro e seus PDFs?"))return;const c=get(id);docs=docs.filter(x=>x.id!==id);sel=null;tab="contrato";render();try{await dbDelete("contratos",id);for(const d of arqs(c))if(d.id)await dbDelete("pdfs",d.id);for(const e of (c.eventos||[]))for(const d of (e.docs||[]))if(d.id)await dbDelete("pdfs",d.id)}catch(e){aviso("Falha ao excluir: "+(e.message||e.code))}}
+function aviso(t){$("#mo").innerHTML=`<div class="modal"><div><div class="msg e">${esc(t)}</div><button class="btn" onclick="$('#mo').innerHTML=''">Fechar</button></div></div>`}
+function alertas(){
+  const b={30:[],60:[],90:[]};docs.forEach(c=>{const d=dias(c);if(d===null||d<0)return;(d<=30?b[30]:d<=60?b[60]:d<=90?b[90]:null)?.push(c)});
+  const n=b[30].length+b[60].length+b[90].length;if(!n)return;
+  const blk=(t,k,cl)=>b[k].length?`<h3><span class="pill ${cl}">${t}</span></h3>`+b[k].sort((a,z)=>dias(a)-dias(z)).map(c=>`<div class="al" onclick="abrir('${c.id}')"><span><b class="num">${esc(num(c))}</b> – ${esc(c.empresa)}</span><span class="sub">${br(fimAtual(c))} · ${dias(c)}d</span></div>`).join(""):"";
+  $("#mo").innerHTML=`<div class="modal"><div><h2 style="margin-top:0">Vencimentos próximos (${n})</h2>${blk("Até 30 dias","30","r")}${blk("31 a 60 dias","60","y")}${blk("61 a 90 dias","90","y")}<br><button class="btn" onclick="$('#mo').innerHTML=''">Entendi</button></div></div>`}
+function abrir(id){$("#mo").innerHTML="";sel=id;tab="det";render()}
+function setTab(t){tab=t;sel=null;render()}
+function render(){
+  const n=k=>docs.filter(c=>c.tipo===k).length,pc=docs.filter(c=>(c.prov||[]).some(p=>!p.done)).length;
+  const T=[["painel","Painel"],["contrato","Contratos",n("contrato")],["ata","Atas",n("ata")],["prov","Providências",pc],["novo","+ Novo / Importar PDF"]];
+  $("#nav").innerHTML=T.map(([k,l,c])=>`<button class="${tab===k||(tab==="det"&&k===(get(sel)?.tipo||"contrato"))?"on":""}" onclick="setTab('${k}')">${l}${c!=null?`<span class="cnt">${c}</span>`:""}</button>`).join("");
+  const names={painel:"Painel de vencimentos",contrato:"Contratos",ata:"Atas",prov:"Providências necessárias",novo:"Novo registro",det:"Detalhes"};
+  $("#pt").innerHTML=`<svg width="26" height="22" viewBox="0 0 24 20" fill="currentColor"><path d="M2 2h7l2 2h11v14H2z"/></svg>${names[tab]}`;
+  $("#crumb").textContent="Prefeitura de Jundiá » Gestão de contratos » "+names[tab];
+  const a=$("#app");
+  if(tab==="painel")a.innerHTML=painel();else if(tab==="contrato"||tab==="ata")a.innerHTML=lista(tab);
+  else if(tab==="prov")a.innerHTML=provTodas();else if(tab==="novo"){if(!$("#pf")){a.innerHTML=novo();bindNovo()}}else{a.innerHTML=detalhe();totI()}
+}
+function linhas(l){return`<div class="tw"><table><thead><tr>${th("numero","Nº")}${th("empresa","Empresa")}${th("objeto","Objeto")}${th("assinatura","Assinatura")}${th("fim","Vigência")}${th("fim","Situação")}</tr></thead><tbody>${l.map(c=>{const[s,t]=sem(c);return`<tr onclick="abrir('${c.id}')"><td><span class="num">${esc(c.numero)}</span><div class="sub">${c.tipo==="ata"?"Ata":"Contrato"}</div></td><td>${esc(c.empresa)}</td><td>${esc((c.objeto||"").slice(0,120))}</td><td>${br(c.assinatura)}</td><td>${br(c.inicio)} a <b>${br(fimAtual(c))}</b>${prog(c)}</td><td><span class="pill ${s}">${s==="x"?t:s==="r"?"Vermelho · "+t:s==="y"?"Amarelo · "+t:"Verde · "+t}</span>${(c.eventos||[]).some(e=>e.tipo==="Não prorrogação")?'<div class="sub" style="color:var(--r);font-weight:600">Não prorrogar</div>':""}</td></tr>`}).join("")}</tbody></table></div>${l.length?"":'<div class="emp">Nenhum registro encontrado.</div>'}`}
+function painel(){
+  const v={g:0,y:0,r:0,x:0};docs.forEach(c=>v[sem(c)[0]]++);
+  const prox=docs.filter(c=>{const d=dias(c);return d!==null&&d>=0&&d<=90}).sort((a,b)=>dias(a)-dias(b));
+  const k=(c,l,d)=>`<div class="kpi ${c} ${fs===c?"on":""}" onclick="fs=fs==='${c}'?'':'${c}';render()"><b>${v[c]}</b><span>${l}</span></div>`;
+  return`<div class="backup-tools"><button class="btn s sm" onclick="exportarBackup()">⬇ Fazer backup dos dados e PDFs</button><label class="btn s sm" style="margin:0;cursor:pointer">⬆ Restaurar backup<input type="file" accept="application/json,.json" style="display:none" onchange="importarBackup(this.files[0])"></label></div><div class="storage-note">Armazenamento local ativo: seus registros e PDFs ficam neste navegador/computador. Faça backups periódicos.</div><div class="kpis">${k("g","Verde · mais de 90 dias")}${k("y","Amarelo · 31 a 90 dias")}${k("r","Vermelho · 30 dias ou menos")}${k("x","Vencidos / sem data")}</div>${lista("all")}`}
+function lista(t){
+  const l=docs.filter(c=>(t==="all"||c.tipo===t)&&(!fs||sem(c)[0]===fs)&&(!q||(c.numero+c.empresa+c.objeto).toLowerCase().includes(q.toLowerCase()))).sort(cmp);
+  return`<div class="tools"><input id="qs" placeholder="Pesquisar por número, empresa ou objeto…  (atalho: /)" value="${esc(q)}" oninput="q=this.value;busca()"><select onchange="fs=this.value;render()"><option value="">Todas as situações</option>${[["g","Verde"],["y","Amarelo"],["r","Vermelho"],["x","Vencido / sem data"]].map(([k,l])=>`<option value="${k}" ${fs===k?"selected":""}>${l}</option>`).join("")}</select><select onchange="sk=this.value;sd=1;render()">${[["criado","Ordem de cadastro"],["fim","Vencimento"],["assinatura","Assinatura"],["numero","Número"]].map(([k,l])=>`<option value="${k}" ${sk===k?"selected":""}>${l}</option>`).join("")}</select><button class="btn s" onclick="sd=-sd;render()" title="Inverter ordem">⇅</button><button class="btn" onclick="setTab('novo')">+ ${t==="ata"?"Ata":t==="all"?"Novo":"Contrato"}</button></div><div id="lt">${linhas(l)}</div>`}
+function busca(){const l=docs.filter(c=>(tab==="painel"||c.tipo===tab)&&(!fs||sem(c)[0]===fs)&&(!q||(c.numero+c.empresa+c.objeto).toLowerCase().includes(q.toLowerCase()))).sort(cmp);$("#lt").innerHTML=linhas(l)}
+function provTodas(){
+  const l=docs.filter(c=>(c.prov||[]).some(p=>!p.done)).sort((a,b)=>(dias(a)??9e9)-(dias(b)??9e9));
+  return l.map(c=>`<div class="card" style="cursor:pointer" onclick="abrir('${c.id}')"><div class="row sb"><b class="num">${esc(num(c))} – ${esc(c.empresa)}</b><span class="pill ${sem(c)[0]}">${sem(c)[1]}</span></div><ul style="margin:8px 0 0">${c.prov.filter(p=>!p.done).map(p=>`<li>${esc(p.t)}${p.obs?` <span class="sub">(${esc(p.obs)})</span>`:""}</li>`).join("")}</ul></div>`).join("")||'<div class="emp">Sem providências pendentes.</div>'}
+function detalhe(){
+  const c=get(sel);if(!c)return'<div class="emp">Registro não encontrado.</div>';const[s,l]=sem(c);
+  const ev=[{tipo:"Contratação original",data:c.assinatura||c.inicio,desc:`Vigência ${br(c.inicio)} a ${br(c.fim)}${c.valor?" · R$ "+c.valor:""}`},...(c.eventos||[]).map((e,i)=>({...e,_i:i}))].sort((a,b)=>(a.data||"").localeCompare(b.data||""));
+  return`<div class="row sb" style="margin-bottom:14px"><button class="btn s" onclick="setTab('${c.tipo}')">← Voltar</button><span class="pill ${s}" style="font-size:14px">${s==="x"?l:(s==="r"?"Vermelho":s==="y"?"Amarelo":"Verde")+" · "+l}</span></div>
+<div class="card"><div class="row sb"><h2 style="margin:0">${esc(num(c))} ${(c.eventos||[]).some(e=>e.tipo==="Não prorrogação")?'<span class="nb">Não prorrogar</span>':""}</h2><span class="row">${arqs(c)[0]?`${pdfLink(arqs(c)[0],"📄 Abrir PDF")}`:'<span class="chip">PDF não anexado</span>'}<button class="btn s sm" onclick="del('${c.id}')">Excluir</button></span></div><br>
+<dl><dt>Empresa</dt><dd>${esc(c.empresa)}</dd><dt>Vigência</dt><dd>${br(c.inicio)} a ${br(c.fim)}${fimAtual(c)!==c.fim?` → <b>atual: ${br(fimAtual(c))}</b>`:""}</dd>${c.assinatura?`<dt>Assinatura</dt><dd>${br(c.assinatura)}</dd>`:""}${c.valor?`<dt>Valor</dt><dd>R$ ${esc(c.valor)}</dd>`:""}<dt>Objeto</dt><dd>${esc(c.objeto)}</dd></dl><div class="row" style="margin-top:16px;gap:20px"><div class="big"><b>${dias(c)??"—"}</b><span>dias restantes</span></div><div style="flex:1;min-width:180px">${prog(c)}<div class="row sb sub"><span>${br(c.inicio)}</span><span>${br(fimAtual(c))}</span></div></div></div></div>
+<div class="two"><div class="card"><h3>Providências necessárias</h3>${(c.prov||[]).map((p,i)=>`<div class="pv"><input type="checkbox" ${p.done?"checked":""} onchange="tgl('${c.id}',${i})"><span style="flex:1;${p.done?"text-decoration:line-through;color:var(--mu)":""}">${esc(p.t)}</span><input type="text" placeholder="Observação" value="${esc(p.obs||"")}" onchange="obs('${c.id}',${i},this.value)"></div>`).join("")||'<div class="sub">Nenhuma providência registrada.</div>'}<br><div class="row"><select id="np" style="flex:1">${PROV.map(p=>`<option>${p}</option>`).join("")}<option>Outra…</option></select><button class="btn s" onclick="addP('${c.id}')">+ Adicionar</button></div></div>
+<div class="card"><h3>Linha do tempo</h3><div class="tl">${ev.map(e=>`<div style="--c:${TC(e.tipo)}"><b>${esc(e.tipo)}</b> <span class="sub">· ${br(e.data)}</span>${e._i!=null?` <a class="rm" onclick="delE('${c.id}',${e._i})">remover</a>`:""}<br>${esc(e.desc||"")}${(e.docs||[]).map(d=>`<br>${pdfLink(d,"📎 "+esc(d.nome))}`).join("")}${e.novoFim?`<br><span class="chip">Nova vigência: ${br(e.novoFim)}</span>`:""}</div>`).join("")}<div class="now"><b>Prazo atual</b> <span class="sub">· ${br(fimAtual(c))}</span></div></div></div></div>
+<div class="card"><h3>Documentos do contrato (PDF)</h3>${arqs(c).map((d,i)=>`<div class="al">${pdfLink(d,"📄 "+esc(d.nome))}<span><a class="rm" onclick="renA('${c.id}',${i})">renomear</a><a class="rm" onclick="delA('${c.id}',${i})">remover</a></span></div>`).join("")||'<div class="sub" style="margin-bottom:8px">Nenhum PDF anexado.</div>'}<div class="row" style="margin-top:10px"><input type="file" id="af" accept="application/pdf" multiple style="flex:1;min-width:200px"><button class="btn sm" id="ba" onclick="addA('${c.id}')">+ Anexar PDF</button></div></div>
+<div class="card"><h3>Itens licitados</h3><div class="tw"><table style="min-width:0"><thead><tr><th>Item</th><th style="width:110px">Quantidade</th><th style="width:140px">Valor (R$)</th><th style="width:36px"></th></tr></thead><tbody id="ib">${(c.itens||[]).map(rowI).join("")||rowI({})}</tbody></table></div><div class="row sb" style="margin-top:12px"><span><button class="btn s sm" onclick="$('#ib').insertAdjacentHTML('beforeend',rowI({}))">+ Linha</button> <button class="btn sm" onclick="saveI('${c.id}')">Salvar itens</button></span><span><span class="sub">Total (quantidade × valor):</span> <b id="ti"></b></span></div></div>
+${(()=>{const L=(c.eventos||[]).flatMap(e=>(e.docs||[]).map(d=>({...d,tipo:e.tipo,data:e.data})));return L.length?`<div class="card"><h3>Documentos anexados</h3>${L.map(d=>`<div class="al" style="--c:${TC(d.tipo)}">${pdfLink(d,"📎 "+esc(d.nome))}<span class="sub">${esc(d.tipo)} · ${br(d.data)}</span></div>`).join("")}</div>`:""})()}
+<div class="card"><h3>Registrar o que aconteceu neste contrato</h3><div class="grid"><div><label>Tipo</label><select id="et">${Object.keys(EVT).map(k=>`<option>${k}</option>`).join("")}</select></div><div><label>Data</label><input type="date" id="ed"></div><div><label>Nova vigência (se houver)</label><input type="date" id="en"></div></div><label>Descrição</label><input id="edc"><div class="grid"><div><label>Anexar PDF(s) desta ocorrência</label><input type="file" id="ef" accept="application/pdf" multiple></div><div><label>Nome do documento (opcional)</label><input id="enm" placeholder="Ex.: Notificação 012/2026"></div></div><div class="sub">Sem nome, o arquivo é nomeado com o tipo + a descrição.</div><br><button class="btn" id="be" onclick="addE('${c.id}')">Registrar na linha do tempo</button></div>`}
+async function tgl(id,i){const c={...get(id)};c.prov=c.prov.map((p,j)=>j===i?{...p,done:!p.done}:p);await save(c)}
+async function obs(id,i,v){const c={...get(id)};c.prov=c.prov.map((p,j)=>j===i?{...p,obs:v}:p);await save(c)}
+async function addP(id){let t=$("#np").value;if(t==="Outra…"){t=await askTxt("Descreva a providência:");if(!t)return}const c={...get(id)};c.prov=[...(c.prov||[]),{t,done:false}];await save(c)}
+async function addE(id){if(!$("#ed").value)return aviso("Informe a data.");const b=$("#be");b.disabled=true;b.textContent="Salvando…";const tipo=$("#et").value,desc=$("#edc").value,nm=$("#enm").value.trim(),fl=[...$("#ef").files],dc=[];
+try{for(let i=0;i<fl.length;i++)dc.push({nome:(nm||tipo+(desc?" - "+desc:""))+(fl.length>1?" ("+(i+1)+")":""),id:await up(fl[i])})}catch(e){console.error(e);b.disabled=false;b.textContent="Registrar na linha do tempo";return aviso("Não foi possível anexar o PDF: "+(e.message||e.code||"erro")+". A ocorrência não foi registrada.")}
+const c={...get(id)};c.eventos=[...(c.eventos||[]),{tipo,data:$("#ed").value,novoFim:$("#en").value,desc,docs:dc}];await save(c)}
+function novo(){return`<div class="card"><h3>Importar PDF e cadastrar contrato ou ata</h3><div class="msg i">Selecione o PDF para leitura do texto e preencha os dados do cadastro. Confira todas as informações com o documento original antes de salvar.</div><input type="file" id="pf" accept="application/pdf" multiple><div class="msg i">Os PDFs e cadastros serão salvos somente neste computador e neste navegador. Não são enviados para a nuvem.</div><div id="st" class="ev" style="margin-top:6px"></div></div><div id="fm"></div>`}
+function formHtml(d){const f=(k,l,t="text")=>`<div><label>${l}</label><input id="f_${k}" type="${t}" value="${esc(d[k]||"")}">${d.ev?.[k]?`<div class="ev">Trecho: “${esc(d.ev[k])}”</div>`:""}</div>`;
+return`<div class="card"><h3>Dados do documento</h3><div class="grid"><div><label>Tipo</label><select id="f_tipo"><option value="contrato" ${d.tipo!=="ata"?"selected":""}>Contrato</option><option value="ata" ${d.tipo==="ata"?"selected":""}>Ata de registro de preços</option></select></div>${f("numero","Número *")}${f("empresa","Empresa *")}${f("assinatura","Data de assinatura","date")}${f("inicio","Início da vigência","date")}${f("fim","Fim da vigência *","date")}${f("valor","Valor (R$)")}</div><label>Objeto / descrição</label><textarea id="f_objeto" rows="3">${esc(d.objeto||"")}</textarea>${d.ev?.objeto?`<div class="ev">Trecho: “${esc(d.ev.objeto)}”</div>`:""}<div class="msg w">Confira principalmente <b>assinatura × vigência</b> e o <b>valor</b>.</div><label style="display:flex;gap:8px;align-items:center;color:var(--tx);font-size:14px"><input type="checkbox" id="ok" style="width:18px;height:18px"> Conferi os dados com o documento original.</label><div id="er"></div><br><button class="btn" id="sv" onclick="salvarNovo()">Salvar</button></div>`}
+function bindNovo(){pdfFiles=[];$("#fm").innerHTML=formHtml(draft||{});$("#pf").onchange=async e=>{pdfFiles=[...e.target.files];if(!pdfFiles.length)return;await extrair(pdfFiles[0])}}
+async function salvarNovo(){
+  const er=m=>$("#er").innerHTML=`<div class="msg e">${m}</div>`,g=k=>$("#f_"+k).value.trim();
+  if(!g("numero")||!g("empresa")||!g("fim"))return er("Preencha número, empresa e fim da vigência.");
+  if(g("inicio")&&g("fim")<g("inicio"))return er("O fim da vigência é anterior ao início. Revise as datas.");
+  if(!$("#ok").checked)return er("Marque a confirmação de conferência para salvar.");
+  const b=$("#sv");b.disabled=true;b.textContent="Salvando…";
+  let A2=[];try{for(const f of pdfFiles)A2.push({nome:f.name.replace(/\.pdf$/i,""),id:await up(f)})}catch(e){console.error(e);b.disabled=false;b.textContent="Salvar";return er("Não foi possível anexar o PDF: "+(e.message||e.code||"erro")+". Nada foi salvo.")}
+  const c={id:"c"+Date.now().toString(36),criado:Date.now(),tipo:g("tipo"),numero:g("numero"),empresa:g("empresa"),assinatura:g("assinatura"),inicio:g("inicio"),fim:g("fim"),valor:g("valor"),objeto:g("objeto"),arqs:A2,prov:[],eventos:[],verificado:true};
+  const ok=await save(c);if(!ok){b.disabled=false;b.textContent="Salvar";return}
+  draft=null;pdfFiles=[];sel=c.id;tab="det";render()}
+async function extrair(f){
+  const st=$("#st");st.textContent="Lendo PDF…";
+  try{pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const p=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let tx="";
+    for(let i=1;i<=Math.min(p.numPages,12);i++)tx+=(await(await p.getPage(i)).getTextContent()).items.map(x=>x.str).join(" ")+"\n";
+    if(tx.trim().length<80){st.textContent="PDF sem texto (digitalizado). Preencha manualmente.";return}
+    st.textContent="PDF lido com sucesso. A leitura automática dos campos por IA não está habilitada nesta versão; preencha os dados manualmente e confira com o documento original."
+  }catch(e){console.error(e);st.textContent="Falha na leitura automática. Preencha manualmente."}}
+async function blobParaBase64(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(",")[1]);r.onerror=()=>reject(r.error);r.readAsDataURL(blob)})}
+async function exportarBackup(){try{const pdfs=await dbGetAll("pdfs"),dados=[];for(const p of pdfs)dados.push({id:p.id,nome:p.nome,tipo:p.tipo,base64:await blobParaBase64(p.blob)});const pacote={aplicacao:"Gestão de Contratos - Jundiá RN",versao:1,dataBackup:new Date().toISOString(),contratos:docs,pdfs:dados};const blob=new Blob([JSON.stringify(pacote)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="backup-gestao-contratos-jundia-"+new Date().toISOString().slice(0,10)+".json";a.click();setTimeout(()=>URL.revokeObjectURL(u),30000);toast("Backup gerado com sucesso")}catch(e){console.error(e);aviso("Não foi possível gerar o backup: "+e.message)}}
+function base64ParaBlob(b64,tipo){const bin=atob(b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return new Blob([arr],{type:tipo||"application/pdf"})}
+async function importarBackup(file){if(!file)return;try{if(!await askOk("A restauração adicionará/substituirá registros com os mesmos identificadores. Deseja continuar?"))return;const pacote=JSON.parse(await file.text());if(!Array.isArray(pacote.contratos)||!Array.isArray(pacote.pdfs))throw new Error("Arquivo de backup inválido.");for(const p of pacote.pdfs)await dbPut("pdfs",{id:p.id,nome:p.nome,tipo:p.tipo,blob:base64ParaBlob(p.base64,p.tipo)});for(const c of pacote.contratos)await dbPut("contratos",c);docs=await dbGetAll("contratos");render();toast("Backup restaurado com sucesso")}catch(e){console.error(e);aviso("Não foi possível restaurar o backup: "+e.message)}}
+document.addEventListener("keydown",e=>{if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){const i=$("#qs");if(i){e.preventDefault();i.focus()}}if(e.key==="Escape")$("#mo").innerHTML=""});
+init();
+</script></body></html>
