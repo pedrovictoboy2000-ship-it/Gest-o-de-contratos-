@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Gestão de contratos - Jundiá RN</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>try{var t=localStorage.getItem("gc_tema");if(t)document.documentElement.setAttribute("data-tema",t)}catch(e){}</script>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff;--bg2:#f3f6fa;--sf:#fff;--tx:#2b3340;--mu:#6b7686;--bd:#e1e6ee;--nav:#5e1230;--nav2:#8a1c3f;--pr:#8a1c3f;--ln:#f6e6eb;--hv:#faf0f3;--ac:#c9962b;--g:#1e9e57;--y:#e5a400;--r:#d93a3a;--gb:#e3f5ea;--yb:#fff4d6;--rb:#fde4e4;--xb:#e9ecf0}
@@ -97,6 +97,29 @@ input,select,textarea{border-radius:8px;transition:border-color .15s}
 .nb{background:var(--rb);color:var(--r);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600}
 .doc{color:var(--pr);font-weight:600;text-decoration:none}.doc:hover{text-decoration:underline}#ib input{padding:6px 8px}#ib td{padding:5px 6px}.al[style*="--c"]{border-left:4px solid var(--c)}
 .storage-note{font-size:12px;color:var(--mu);margin:8px 0}.backup-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+/* ===== visual moderno (mesma paleta) ===== */
+body{font-family:"Inter","Open Sans",system-ui,sans-serif;letter-spacing:-.005em}
+.top{height:62px;padding:0 24px;border-bottom:0;box-shadow:0 10px 30px color-mix(in srgb,var(--nav) 35%,transparent)}
+.brand{font-size:18px}.brand .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--ac),#f2cb70);color:var(--nav);box-shadow:0 4px 12px #0004}
+.top .ent{background:#ffffff1f;padding:5px 14px;border-radius:20px;font-size:12.5px}
+.wrap{max-width:1240px;padding-top:28px}.crumb{font-size:12px}
+h1.pt{font-size:27px;font-weight:700;letter-spacing:-.02em}h1.pt svg{color:var(--pr)}
+.tabs{padding:6px;background:var(--sf);border-radius:16px;gap:4px;box-shadow:0 1px 2px #0001,0 8px 24px #0000000a}
+.tabs button{border:0;border-radius:12px;padding:9px 16px;font-weight:600;background:none}
+.tabs button:hover{background:var(--ln);color:var(--pr)}
+.tabs button.on{background:linear-gradient(135deg,var(--nav2),var(--pr));color:#fff}
+.card,.kpi,.tw{border-radius:18px}.card{padding:20px}
+.kpi{padding:18px 18px 18px 26px}.kpi b{font-size:34px;letter-spacing:-.03em}
+th{background:var(--bg2);font-size:11.5px}td{padding:13px 10px}
+.btn{border-radius:10px;border-color:transparent;background:linear-gradient(135deg,var(--nav2),var(--pr));box-shadow:0 4px 12px color-mix(in srgb,var(--pr) 30%,transparent)}
+.btn.s{background:var(--sf);color:var(--pr);border:1px solid var(--bd);box-shadow:none}
+input,select,textarea{border-radius:10px;padding:10px 12px;background:var(--sf)}
+.pill{padding:3px 12px}.al{border-radius:12px;padding:10px 12px}
+.modal{backdrop-filter:blur(4px)}.modal>div{border-radius:20px;box-shadow:0 30px 80px #0006}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}.cal>div{min-height:88px;background:var(--bg2);border-radius:10px;padding:5px;font-size:11px;overflow:hidden}.cal .h{min-height:0;background:none;font-weight:700;color:var(--mu);text-align:center}.cal .ev2{display:block;border-radius:5px;padding:1px 6px;margin-top:2px;color:#fff;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nota{white-space:pre-wrap;color:var(--tx);margin:8px 0 12px}
+@media(max-width:600px){.top{padding:0 12px}.brand{font-size:15px}.top .ent{display:none}.tabs button{padding:8px 12px}}
+@media print{.top,.crumb,.tabs,.btn,.tools,.backup-tools,#mo,.noprint,.toast{display:none!important}}
 </style></head><body>
 <div class="top"><div class="brand"><span class="logo">GC</span>Gestão de contratos - Jundiá RN</div><span class="sp"></span><span class="ent">● Prefeitura de Jundiá</span><button class="avatar" id="av" onclick="setTab('config')" title="Configurações"></button></div>
 <div class="crumb" id="crumb"></div>
@@ -163,21 +186,22 @@ async function del(id){if(!await askOk("Excluir definitivamente este registro e 
 function aviso(t){$("#mo").innerHTML=`<div class="modal"><div><div class="msg e">${esc(t)}</div><button class="btn" onclick="$('#mo').innerHTML=''">Fechar</button></div></div>`}
 function alertas(){
   const b={30:[],60:[],90:[]};docs.forEach(c=>{const d=dias(c);if(d===null||d<0)return;(d<=30?b[30]:d<=60?b[60]:d<=90?b[90]:null)?.push(c)});
-  const n=b[30].length+b[60].length+b[90].length;if(!n)return;
+  const n=b[30].length+b[60].length+b[90].length,NT=notas().filter(x=>x.notif);if(!n&&!NT.length)return;
   const blk=(t,k,cl)=>b[k].length?`<h3><span class="pill ${cl}">${t}</span></h3>`+b[k].sort((a,z)=>dias(a)-dias(z)).map(c=>`<div class="al" onclick="abrir('${c.id}')"><span><b class="num">${esc(num(c))}</b> – ${esc(c.empresa)}</span><span class="sub">${br(fimAtual(c))} · ${dias(c)}d</span></div>`).join(""):"";
-  $("#mo").innerHTML=`<div class="modal"><div><h2 style="margin-top:0">Vencimentos próximos (${n})</h2>${blk("Até 30 dias","30","r")}${blk("31 a 60 dias","60","y")}${blk("61 a 90 dias","90","y")}<br><button class="btn" onclick="$('#mo').innerHTML=''">Entendi</button></div></div>`}
+  const nb=NT.length?`<h3><span class="pill x">Anotações (${NT.length})</span></h3>`+NT.map(x=>`<div class="al" style="cursor:default"><span><b>${esc(x.titulo||"Sem título")}</b>${x.data?` <span class="chip">${br(x.data)}</span>`:""}<div class="sub">${esc((x.texto||"").slice(0,160))}</div></span><a class="rm" onclick="dispensar('${x.id}')">✕ excluir notificação</a></div>`).join(""):"";
+  $("#mo").innerHTML=`<div class="modal"><div><h2 style="margin-top:0">🔔 Notificações</h2>${nb}${n?`<h3 style="margin-bottom:0">Vencimentos próximos (${n})</h3>`:""}${blk("Até 30 dias","30","r")}${blk("31 a 60 dias","60","y")}${blk("61 a 90 dias","90","y")}<br><button class="btn" onclick="$('#mo').innerHTML=''">Entendi</button></div></div>`}
 function abrir(id){$("#mo").innerHTML="";sel=id;tab="det";render()}
 function setTab(t){tab=t;sel=null;render()}
 function render(){
   const n=k=>docs.filter(c=>c.tipo===k).length,pc=docs.filter(c=>(c.prov||[]).some(p=>!p.done)).length;
-  const T=[["painel","Painel"],["contrato","Contratos",n("contrato")],["ata","Atas",n("ata")],["prov","Providências",pc],["novo","+ Novo / Importar PDF"],["config","⚙ Configurações"]];
+  const T=[["painel","Painel"],["contrato","Contratos",n("contrato")],["ata","Atas",n("ata")],["prov","Providências",pc],["notas","Anotações",notas().length],["cal","Calendário"],["config","⚙ Configurações"],["novo","+ Novo / Importar PDF"]];
   $("#nav").innerHTML=T.map(([k,l,c])=>`<button class="${tab===k||(tab==="det"&&k===(get(sel)?.tipo||"contrato"))?"on":""}" onclick="setTab('${k}')">${l}${c!=null?`<span class="cnt">${c}</span>`:""}</button>`).join("");
-  const names={painel:"Painel de vencimentos",contrato:"Contratos",ata:"Atas",prov:"Providências necessárias",novo:"Novo registro",config:"Configurações",det:"Detalhes"};
+  const names={painel:"Painel de vencimentos",contrato:"Contratos",ata:"Atas",prov:"Providências necessárias",novo:"Novo registro",config:"Configurações",notas:"Anotações",cal:"Calendário administrativo",det:"Detalhes"};
   $("#pt").innerHTML=`<svg width="26" height="22" viewBox="0 0 24 20" fill="currentColor"><path d="M2 2h7l2 2h11v14H2z"/></svg>${names[tab]}`;
   $("#crumb").textContent="Prefeitura de Jundiá » Gestão de contratos » "+names[tab];
   const a=$("#app");
   if(tab==="painel")a.innerHTML=painel();else if(tab==="contrato"||tab==="ata")a.innerHTML=lista(tab);
-  else if(tab==="prov")a.innerHTML=provTodas();else if(tab==="config")a.innerHTML=config();else if(tab==="novo"){if(!$("#pf")){a.innerHTML=novo();bindNovo()}}else{a.innerHTML=detalhe();totI()}
+  else if(tab==="prov")a.innerHTML=provTodas();else if(tab==="config")a.innerHTML=config();else if(tab==="notas")a.innerHTML=anotacoes();else if(tab==="cal")a.innerHTML=calendario();else if(tab==="novo"){if(!$("#pf")){a.innerHTML=novo();bindNovo()}}else{a.innerHTML=detalhe();totI()}
 }
 function linhas(l){return`<div class="tw"><table><thead><tr>${th("numero","Nº")}${th("empresa","Empresa")}${th("objeto","Objeto")}${th("assinatura","Assinatura")}${th("fim","Vigência")}${th("fim","Situação")}</tr></thead><tbody>${l.map(c=>{const[s,t]=sem(c);return`<tr onclick="abrir('${c.id}')"><td><span class="num">${esc(c.numero)}</span><div class="sub">${c.tipo==="ata"?"Ata":"Contrato"}</div></td><td>${esc(c.empresa)}</td><td>${esc((c.objeto||"").slice(0,120))}</td><td>${br(c.assinatura)}</td><td>${br(c.inicio)} a <b>${br(fimAtual(c))}</b>${prog(c)}</td><td><span class="pill ${s}">${s==="x"?t:s==="r"?"Vermelho · "+t:s==="y"?"Amarelo · "+t:"Verde · "+t}</span>${(c.eventos||[]).some(e=>e.tipo==="Não prorrogação")?'<div class="sub" style="color:var(--r);font-weight:600">Não prorrogar</div>':""}</td></tr>`}).join("")}</tbody></table></div>${l.length?"":'<div class="emp">Nenhum registro encontrado.</div>'}`}
 function painel(){
@@ -233,9 +257,9 @@ async function extrair(f){
     st.textContent="PDF lido com sucesso. A leitura automática dos campos por IA não está habilitada nesta versão; preencha os dados manualmente e confira com o documento original."
   }catch(e){console.error(e);st.textContent="Falha na leitura automática. Preencha manualmente."}}
 async function blobParaBase64(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(",")[1]);r.onerror=()=>reject(r.error);r.readAsDataURL(blob)})}
-async function exportarBackup(){try{const pdfs=await dbGetAll("pdfs"),dados=[];for(const p of pdfs)dados.push({id:p.id,nome:p.nome,tipo:p.tipo,base64:await blobParaBase64(p.blob)});const pacote={aplicacao:"Gestão de Contratos - Jundiá RN",versao:1,dataBackup:new Date().toISOString(),contratos:docs,pdfs:dados};const blob=new Blob([JSON.stringify(pacote)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="backup-gestao-contratos-jundia-"+new Date().toISOString().slice(0,10)+".json";a.click();setTimeout(()=>URL.revokeObjectURL(u),30000);toast("Backup gerado com sucesso")}catch(e){console.error(e);aviso("Não foi possível gerar o backup: "+e.message)}}
+async function exportarBackup(){try{const pdfs=await dbGetAll("pdfs"),dados=[];for(const p of pdfs)dados.push({id:p.id,nome:p.nome,tipo:p.tipo,base64:await blobParaBase64(p.blob)});const pacote={aplicacao:"Gestão de Contratos - Jundiá RN",versao:1,dataBackup:new Date().toISOString(),contratos:docs,pdfs:dados,notas:notas()};const blob=new Blob([JSON.stringify(pacote)],{type:"application/json"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="backup-gestao-contratos-jundia-"+new Date().toISOString().slice(0,10)+".json";a.click();setTimeout(()=>URL.revokeObjectURL(u),30000);toast("Backup gerado com sucesso")}catch(e){console.error(e);aviso("Não foi possível gerar o backup: "+e.message)}}
 function base64ParaBlob(b64,tipo){const bin=atob(b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return new Blob([arr],{type:tipo||"application/pdf"})}
-async function importarBackup(file){if(!file)return;try{if(!await askOk("A restauração adicionará/substituirá registros com os mesmos identificadores. Deseja continuar?"))return;const pacote=JSON.parse(await file.text());if(!Array.isArray(pacote.contratos)||!Array.isArray(pacote.pdfs))throw new Error("Arquivo de backup inválido.");for(const p of pacote.pdfs)await dbPut("pdfs",{id:p.id,nome:p.nome,tipo:p.tipo,blob:base64ParaBlob(p.base64,p.tipo)});for(const c of pacote.contratos)await dbPut("contratos",c);docs=await dbGetAll("contratos");render();toast("Backup restaurado com sucesso")}catch(e){console.error(e);aviso("Não foi possível restaurar o backup: "+e.message)}}
+async function importarBackup(file){if(!file)return;try{if(!await askOk("A restauração adicionará/substituirá registros com os mesmos identificadores. Deseja continuar?"))return;const pacote=JSON.parse(await file.text());if(!Array.isArray(pacote.contratos)||!Array.isArray(pacote.pdfs))throw new Error("Arquivo de backup inválido.");for(const p of pacote.pdfs)await dbPut("pdfs",{id:p.id,nome:p.nome,tipo:p.tipo,blob:base64ParaBlob(p.base64,p.tipo)});for(const c of pacote.contratos)await dbPut("contratos",c);if(Array.isArray(pacote.notas))saveNotas([...notas().filter(a=>!pacote.notas.some(b=>b.id===a.id)),...pacote.notas]);docs=await dbGetAll("contratos");render();toast("Backup restaurado com sucesso")}catch(e){console.error(e);aviso("Não foi possível restaurar o backup: "+e.message)}}
 document.addEventListener("keydown",e=>{if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){const i=$("#qs");if(i){e.preventDefault();i.focus()}}if(e.key==="Escape")$("#mo").innerHTML=""});
 // ===== Configurações: foto de perfil e tema =====
 const TEMAS=[["bordo","Bordô (padrão)","#8a1c3f","#fff"],["azul","Azul","#1f5fbf","#fff"],["verde","Verde","#1a7a4c","#fff"],["escuro","Escuro","#8a1c3f","#000"]];
@@ -256,6 +280,34 @@ function config(){
   const f=ls.get("gc_foto"),t=document.documentElement.getAttribute("data-tema")||"bordo";
   return`<div class="two"><div class="card"><h3>Foto de perfil</h3><div class="row" style="gap:18px"><div class="pfp">${f?`<img src="${f}" alt="">`:ICONE}</div><div><label class="btn sm" style="margin:0;cursor:pointer">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="fotoArquivo(this.files[0])"></label> ${f?'<button class="btn s sm" onclick="removerFoto()">Remover</button>':""}<div class="sub" style="margin-top:8px">A imagem é recortada em formato quadrado e fica salva somente neste navegador.</div></div></div></div>
 <div class="card"><h3>Tema do site</h3><div class="temas">${TEMAS.map(([k,n,c,b])=>`<button class="tema ${t===k?"on":""}" onclick="setTema('${k}')"><span class="sw" style="background:linear-gradient(90deg,${c} 50%,${b} 50%)"></span>${n}</button>`).join("")}</div></div></div>`}
+
+// ===== Anotações, notificações e calendário =====
+const notas=()=>{try{return JSON.parse(ls.get("gc_notas")||"[]")}catch(e){return[]}};
+const saveNotas=L=>ls.set("gc_notas",JSON.stringify(L));
+const hoje0=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+let notaEd=null,calM=new Date().getMonth(),calY=new Date().getFullYear();
+function anotacoes(){
+  const L=notas().sort((a,b)=>(b.criado||0)-(a.criado||0)),e=L.find(x=>x.id===notaEd)||{};
+  return`<div class="card"><h3>${e.id?"Editar anotação":"Nova anotação"}</h3><label>Título</label><input id="nt" value="${esc(e.titulo||"")}"><label>Anotação</label><textarea id="nx" rows="5">${esc(e.texto||"")}</textarea><div class="grid"><div><label>Data (opcional – aparece no calendário)</label><input type="date" id="nd" value="${esc(e.data||"")}"></div></div><label style="display:flex;gap:8px;align-items:center;color:var(--tx);font-size:14px"><input type="checkbox" id="nn" style="width:18px;height:18px" ${e.id&&!e.notif?"":"checked"}> Notificar sempre que eu abrir o site</label><br><div class="row"><button class="btn" onclick="salvarNota()">Salvar anotação</button>${e.id?'<button class="btn s" onclick="notaEd=null;render()">Cancelar</button>':""}</div></div>`+
+  (L.map(x=>`<div class="card"><div class="row sb"><b>${esc(x.titulo||"Sem título")}</b><span class="row">${x.data?`<span class="chip">${br(x.data)}</span>`:""}${x.notif?'<span class="pill y">Notificação ativa</span>':'<span class="chip">Sem notificação</span>'}</span></div><div class="nota">${esc(x.texto)}</div><div class="row"><button class="btn s sm" onclick="notaEd='${x.id}';render();scrollTo(0,0)">✎ Editar</button><button class="btn s sm" onclick="notaNotif('${x.id}')">${x.notif?"🔕 Excluir notificação":"🔔 Ativar notificação"}</button><button class="btn s sm" onclick="notaDel('${x.id}')">Excluir anotação</button></div></div>`).join("")||'<div class="emp">Nenhuma anotação ainda.</div>')}
+function salvarNota(){
+  const t=$("#nt").value.trim(),x=$("#nx").value.trim();if(!t&&!x)return aviso("Escreva um título ou uma anotação.");
+  const L=notas(),o={titulo:t,texto:x,data:$("#nd").value,notif:$("#nn").checked},i=L.findIndex(y=>y.id===notaEd);
+  if(i>=0)L[i]={...L[i],...o};else L.push({id:"n"+Date.now().toString(36),criado:Date.now(),...o});
+  if(!saveNotas(L))return aviso("Não foi possível salvar a anotação neste navegador.");notaEd=null;render();toast("✔ Anotação salva")}
+function notaNotif(id){saveNotas(notas().map(x=>x.id===id?{...x,notif:!x.notif}:x));render();toast("Notificação atualizada")}
+async function notaDel(id){if(!await askOk("Excluir esta anotação definitivamente?"))return;saveNotas(notas().filter(x=>x.id!==id));render()}
+function dispensar(id){saveNotas(notas().map(x=>x.id===id?{...x,notif:false}:x));$("#mo").innerHTML="";alertas();if(tab==="notas")render();toast("Notificação excluída")}
+function calMove(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}render()}
+function evClick(id){get(id)?abrir(id):setTab("notas")}
+function calendario(){
+  const ev={},add=(d,t,id,col)=>{if(d)(ev[d]=ev[d]||[]).push([t,id,col])};
+  docs.forEach(c=>{add(fimAtual(c),"Vence: "+num(c),c.id,"#d93a3a");add(c.assinatura,"Assinatura: "+num(c),c.id,"#6b7686");(c.eventos||[]).forEach(e=>add(e.data,e.tipo+": "+num(c),c.id,TC(e.tipo)))});
+  notas().forEach(x=>add(x.data,"Nota: "+(x.titulo||"sem título"),x.id,"#c9962b"));
+  const f=new Date(calY,calM,1),nd=new Date(calY,calM+1,0).getDate();
+  let cells=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(x=>`<div class="h">${x}</div>`).join("")+'<div style="background:none"></div>'.repeat(f.getDay());
+  for(let d=1;d<=nd;d++){const k=calY+"-"+String(calM+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");cells+=`<div${k===hoje0()?' style="outline:2px solid var(--pr)"':""}><b>${d}</b>${(ev[k]||[]).map(e=>`<span class="ev2" style="background:${e[2]}" title="${esc(e[0])}" onclick="evClick('${e[1]}')">${esc(e[0])}</span>`).join("")}</div>`}
+  return`<div class="card"><div class="row sb"><button class="btn s sm" onclick="calMove(-1)">←</button><b style="text-transform:capitalize;font-size:16px">${f.toLocaleDateString("pt-BR",{month:"long",year:"numeric"})}</b><button class="btn s sm" onclick="calMove(1)">→</button></div><div class="cal">${cells}</div><div class="sub" style="margin-top:12px">Vermelho: vencimentos · Cinza: assinaturas · Dourado: anotações · Demais cores: ocorrências dos contratos. Clique num evento para abrir.</div></div>`}
 
 aplicarTema(ls.get("gc_tema")||"bordo");avatar();
 init();
