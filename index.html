@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Gestão de contratos - Jundiá RN</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>try{var t=localStorage.getItem("gc_tema");if(t)document.documentElement.setAttribute("data-tema",t)}catch(e){}</script>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff;--bg2:#f3f6fa;--sf:#fff;--tx:#2b3340;--mu:#6b7686;--bd:#e1e6ee;--nav:#5e1230;--nav2:#8a1c3f;--pr:#8a1c3f;--ln:#f6e6eb;--hv:#faf0f3;--ac:#c9962b;--g:#1e9e57;--y:#e5a400;--r:#d93a3a;--gb:#e3f5ea;--yb:#fff4d6;--rb:#fde4e4;--xb:#e9ecf0}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#10151c;--bg2:#161c25;--sf:#1a212b;--tx:#e6ebf2;--mu:#93a0b0;--bd:#2a3442;--nav:#3d0c1f;--nav2:#6e1a38;--pr:#e58aa8;--ln:#3a1a26;--hv:#2a1f26;--ac:#d9aa45;--gb:#14382a;--yb:#3d3210;--rb:#442020;--xb:#262e39}}
+/* ===== TEMAS (Configurações) ===== */
+:root[data-tema=azul]{--nav:#0f2a5e;--nav2:#1f5fbf;--pr:#1f5fbf;--ln:#e3edfb;--hv:#eef4fd}
+:root[data-tema=verde]{--nav:#0d3b2a;--nav2:#1e8a57;--pr:#1a7a4c;--ln:#e2f4ea;--hv:#eef8f2}
+:root[data-tema=escuro]{--bg:#0d0d0d;--bg2:#000;--sf:#151515;--tx:#f2f2f2;--mu:#a0a0a0;--bd:#2c2c2c;--nav:#5e1230;--nav2:#8a1c3f;--pr:#c2305e;--ln:#2e1420;--hv:#1c1015;--gb:#0f2e22;--yb:#33290a;--rb:#3b1818;--xb:#222}
+:root[data-tema=escuro] .msg.w,:root[data-tema=escuro] .pill.y,:root[data-tema=escuro] .kpi.y b{color:#f0c050}
+:root[data-tema=escuro] .toast{background:#2a2a2a}
+.avatar{width:32px;height:32px;border-radius:50%;border:2px solid var(--ac);background:var(--nav2);color:#fff;padding:0;overflow:hidden;cursor:pointer;display:grid;place-items:center;margin-left:10px;flex:none}.avatar img,.pfp img{width:100%;height:100%;object-fit:cover}
+.pfp{width:96px;height:96px;border-radius:50%;border:3px solid var(--pr);background:var(--ln);color:var(--pr);overflow:hidden;display:grid;place-items:center;flex:none}
+.temas{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.tema{border:2px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;padding:10px;font:inherit;font-weight:600;cursor:pointer;text-align:left}.tema:hover{border-color:var(--pr)}.tema.on{border-color:var(--pr);box-shadow:0 0 0 2px var(--ln)}
+.tema .sw{display:block;height:34px;border-radius:6px;margin-bottom:8px;border:1px solid var(--bd)}
 *,*:before,*:after{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 "Open Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
 .top{background:var(--nav);color:#fff;display:flex;align-items:center;gap:6px;padding:0 14px;height:48px;position:sticky;top:env(safe-area-inset-top,0px);z-index:10}
@@ -76,7 +87,7 @@ input,select,textarea{border-radius:8px;transition:border-color .15s}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#1b2430;color:#fff;padding:10px 18px;border-radius:24px;box-shadow:0 8px 24px #0005;z-index:40;animation:fi .25s ease both}
 .top{background:linear-gradient(100deg,var(--nav),var(--nav2));border-bottom:3px solid var(--ac);box-shadow:0 4px 14px #4a0f2440}
 .brand .logo{background:var(--ac);color:#fff}
-.tabs button.on{box-shadow:0 4px 12px #8a1c3f45}
+.tabs button.on{box-shadow:0 4px 12px color-mix(in srgb,var(--pr) 28%,transparent)}
 .card,.kpi,.tw{box-shadow:0 1px 2px #3a102014,0 8px 24px #3a10200d}
 .kpi{padding:16px 16px 16px 22px}.kpi.g{background:var(--gb)}.kpi.y{background:var(--yb)}.kpi.r{background:var(--rb)}.kpi.x{background:var(--xb)}
 .kpi.g b{color:var(--g)}.kpi.y b{color:#a87700}.kpi.r b{color:var(--r)}.kpi.on{outline:2px solid var(--pr)}.kpi:hover{box-shadow:0 10px 28px #4a0f2430}
@@ -84,11 +95,10 @@ input,select,textarea{border-radius:8px;transition:border-color .15s}
 .tl>div:before{background:var(--c,var(--pr))}.tl>div b{color:var(--c,var(--tx))}
 .rm{font-size:11px;color:var(--mu);cursor:pointer;margin-left:6px;text-decoration:underline}.rm:hover{color:var(--r)}
 .nb{background:var(--rb);color:var(--r);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600}
-@media(prefers-color-scheme:dark){.btn:not(.s),.tabs button.on{color:#2a0a16!important}}
 .doc{color:var(--pr);font-weight:600;text-decoration:none}.doc:hover{text-decoration:underline}#ib input{padding:6px 8px}#ib td{padding:5px 6px}.al[style*="--c"]{border-left:4px solid var(--c)}
 .storage-note{font-size:12px;color:var(--mu);margin:8px 0}.backup-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 </style></head><body>
-<div class="top"><div class="brand"><span class="logo">GC</span>Gestão de contratos - Jundiá RN</div><span class="sp"></span><span class="ent">● Prefeitura de Jundiá</span></div>
+<div class="top"><div class="brand"><span class="logo">GC</span>Gestão de contratos - Jundiá RN</div><span class="sp"></span><span class="ent">● Prefeitura de Jundiá</span><button class="avatar" id="av" onclick="setTab('config')" title="Configurações"></button></div>
 <div class="crumb" id="crumb"></div>
 <div class="wrap"><h1 class="pt" id="pt"></h1><div class="tabs" id="nav"></div><div id="app">Carregando…</div></div><div id="mo"></div>
 <script>
@@ -160,14 +170,14 @@ function abrir(id){$("#mo").innerHTML="";sel=id;tab="det";render()}
 function setTab(t){tab=t;sel=null;render()}
 function render(){
   const n=k=>docs.filter(c=>c.tipo===k).length,pc=docs.filter(c=>(c.prov||[]).some(p=>!p.done)).length;
-  const T=[["painel","Painel"],["contrato","Contratos",n("contrato")],["ata","Atas",n("ata")],["prov","Providências",pc],["novo","+ Novo / Importar PDF"]];
+  const T=[["painel","Painel"],["contrato","Contratos",n("contrato")],["ata","Atas",n("ata")],["prov","Providências",pc],["novo","+ Novo / Importar PDF"],["config","⚙ Configurações"]];
   $("#nav").innerHTML=T.map(([k,l,c])=>`<button class="${tab===k||(tab==="det"&&k===(get(sel)?.tipo||"contrato"))?"on":""}" onclick="setTab('${k}')">${l}${c!=null?`<span class="cnt">${c}</span>`:""}</button>`).join("");
-  const names={painel:"Painel de vencimentos",contrato:"Contratos",ata:"Atas",prov:"Providências necessárias",novo:"Novo registro",det:"Detalhes"};
+  const names={painel:"Painel de vencimentos",contrato:"Contratos",ata:"Atas",prov:"Providências necessárias",novo:"Novo registro",config:"Configurações",det:"Detalhes"};
   $("#pt").innerHTML=`<svg width="26" height="22" viewBox="0 0 24 20" fill="currentColor"><path d="M2 2h7l2 2h11v14H2z"/></svg>${names[tab]}`;
   $("#crumb").textContent="Prefeitura de Jundiá » Gestão de contratos » "+names[tab];
   const a=$("#app");
   if(tab==="painel")a.innerHTML=painel();else if(tab==="contrato"||tab==="ata")a.innerHTML=lista(tab);
-  else if(tab==="prov")a.innerHTML=provTodas();else if(tab==="novo"){if(!$("#pf")){a.innerHTML=novo();bindNovo()}}else{a.innerHTML=detalhe();totI()}
+  else if(tab==="prov")a.innerHTML=provTodas();else if(tab==="config")a.innerHTML=config();else if(tab==="novo"){if(!$("#pf")){a.innerHTML=novo();bindNovo()}}else{a.innerHTML=detalhe();totI()}
 }
 function linhas(l){return`<div class="tw"><table><thead><tr>${th("numero","Nº")}${th("empresa","Empresa")}${th("objeto","Objeto")}${th("assinatura","Assinatura")}${th("fim","Vigência")}${th("fim","Situação")}</tr></thead><tbody>${l.map(c=>{const[s,t]=sem(c);return`<tr onclick="abrir('${c.id}')"><td><span class="num">${esc(c.numero)}</span><div class="sub">${c.tipo==="ata"?"Ata":"Contrato"}</div></td><td>${esc(c.empresa)}</td><td>${esc((c.objeto||"").slice(0,120))}</td><td>${br(c.assinatura)}</td><td>${br(c.inicio)} a <b>${br(fimAtual(c))}</b>${prog(c)}</td><td><span class="pill ${s}">${s==="x"?t:s==="r"?"Vermelho · "+t:s==="y"?"Amarelo · "+t:"Verde · "+t}</span>${(c.eventos||[]).some(e=>e.tipo==="Não prorrogação")?'<div class="sub" style="color:var(--r);font-weight:600">Não prorrogar</div>':""}</td></tr>`}).join("")}</tbody></table></div>${l.length?"":'<div class="emp">Nenhum registro encontrado.</div>'}`}
 function painel(){
@@ -227,5 +237,26 @@ async function exportarBackup(){try{const pdfs=await dbGetAll("pdfs"),dados=[];f
 function base64ParaBlob(b64,tipo){const bin=atob(b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return new Blob([arr],{type:tipo||"application/pdf"})}
 async function importarBackup(file){if(!file)return;try{if(!await askOk("A restauração adicionará/substituirá registros com os mesmos identificadores. Deseja continuar?"))return;const pacote=JSON.parse(await file.text());if(!Array.isArray(pacote.contratos)||!Array.isArray(pacote.pdfs))throw new Error("Arquivo de backup inválido.");for(const p of pacote.pdfs)await dbPut("pdfs",{id:p.id,nome:p.nome,tipo:p.tipo,blob:base64ParaBlob(p.base64,p.tipo)});for(const c of pacote.contratos)await dbPut("contratos",c);docs=await dbGetAll("contratos");render();toast("Backup restaurado com sucesso")}catch(e){console.error(e);aviso("Não foi possível restaurar o backup: "+e.message)}}
 document.addEventListener("keydown",e=>{if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){const i=$("#qs");if(i){e.preventDefault();i.focus()}}if(e.key==="Escape")$("#mo").innerHTML=""});
+// ===== Configurações: foto de perfil e tema =====
+const TEMAS=[["bordo","Bordô (padrão)","#8a1c3f","#fff"],["azul","Azul","#1f5fbf","#fff"],["verde","Verde","#1a7a4c","#fff"],["escuro","Escuro","#8a1c3f","#000"]];
+const ICONE='<svg width="55%" height="55%" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.6 3.8-7.5 8.5-7.5s8.5 2.9 8.5 7.5z"/></svg>';
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+function aplicarTema(t){if(!TEMAS.some(x=>x[0]===t))t="bordo";document.documentElement.setAttribute("data-tema",t)}
+function setTema(t){ls.set("gc_tema",t);aplicarTema(t);render();toast("✔ Tema alterado")}
+function avatar(){const f=ls.get("gc_foto"),a=$("#av");if(a)a.innerHTML=f?`<img src="${f}" alt="Perfil">`:ICONE}
+function fotoArquivo(file){
+  if(!file)return;if(!/^image\//.test(file.type))return aviso("Selecione um arquivo de imagem.");
+  const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const S=256,cv=document.createElement("canvas");cv.width=cv.height=S;const x=cv.getContext("2d"),m=Math.min(img.width,img.height);x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);URL.revokeObjectURL(u);
+    if(ls.set("gc_foto",cv.toDataURL("image/jpeg",.85))){avatar();render();toast("✔ Foto atualizada")}else aviso("Não foi possível salvar a foto neste navegador.")};
+  img.onerror=()=>{URL.revokeObjectURL(u);aviso("Não foi possível ler esta imagem. Tente um arquivo JPG ou PNG.")};
+  img.src=u}
+function removerFoto(){ls.del("gc_foto");avatar();render();toast("Foto removida")}
+function config(){
+  const f=ls.get("gc_foto"),t=document.documentElement.getAttribute("data-tema")||"bordo";
+  return`<div class="two"><div class="card"><h3>Foto de perfil</h3><div class="row" style="gap:18px"><div class="pfp">${f?`<img src="${f}" alt="">`:ICONE}</div><div><label class="btn sm" style="margin:0;cursor:pointer">Escolher foto<input type="file" accept="image/*" style="display:none" onchange="fotoArquivo(this.files[0])"></label> ${f?'<button class="btn s sm" onclick="removerFoto()">Remover</button>':""}<div class="sub" style="margin-top:8px">A imagem é recortada em formato quadrado e fica salva somente neste navegador.</div></div></div></div>
+<div class="card"><h3>Tema do site</h3><div class="temas">${TEMAS.map(([k,n,c,b])=>`<button class="tema ${t===k?"on":""}" onclick="setTema('${k}')"><span class="sw" style="background:linear-gradient(90deg,${c} 50%,${b} 50%)"></span>${n}</button>`).join("")}</div></div></div>`}
+
+aplicarTema(ls.get("gc_tema")||"bordo");avatar();
 init();
 </script></body></html>
