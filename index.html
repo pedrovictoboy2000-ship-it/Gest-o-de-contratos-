@@ -185,10 +185,19 @@ body.side-open .side{transform:none;visibility:visible;transition:transform .28s
 .pvw iframe{width:794px;height:1123px;border:0;display:block;transform-origin:top left;background:#fff}
 @media(max-width:600px){.tbtn span{display:none}.tbtn{padding:8px 10px}}
 @media print{.side,.sideov,.pvm,.tbtn{display:none!important}}
+
+/* ===== Crédito do criador ===== */
+.rodape{max-width:1240px;margin:0 auto;padding:0 16px calc(34px + env(safe-area-inset-bottom,0px))}
+.rodape>div{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 20px;background:var(--sf);border-radius:18px;box-shadow:0 1px 2px #3a102014,0 8px 24px #3a10200d}
+.cr{display:flex;align-items:center;gap:14px}
+.cr .mono{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--nav);font-weight:700;font-size:14px;background:linear-gradient(135deg,var(--ac),#f2cb70);flex:none}
+.cr small{display:block;font-size:12px;color:var(--mu)}.cr b{display:block;font-size:15px;color:var(--tx)}
+.rodape .info{font-size:12.5px;color:var(--mu)}
+@media print{.rodape{display:none!important}}
 </style></head><body>
 <div class="top"><div class="brand"><span class="logo">GC</span>Gestão de contratos - Jundiá RN</div><span class="sp"></span><span class="ent">● Prefeitura de Jundiá</span><button class="tbtn" id="tbtn" onclick="lateral()" aria-label="Abrir ou fechar a barra de ferramentas" title="Ferramentas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Ferramentas</span></button><button class="avatar" id="av" onclick="setTab('config')" title="Configurações"></button></div>
 <div class="crumb" id="crumb"></div>
-<div class="wrap"><h1 class="pt" id="pt"></h1><div class="tabs" id="nav"></div><div id="app">Carregando…</div></div><div id="mo"></div>
+<div class="wrap"><h1 class="pt" id="pt"></h1><div class="tabs" id="nav"></div><div id="app">Carregando…</div></div><footer class="rodape"><div><div class="cr"><span class="mono">PV</span><div><small>Criador do site</small><b>Pedro Victor Rodrigues Alves</b></div></div><span class="info">Gestão de contratos da Prefeitura de Jundiá/RN</span></div></footer><div id="mo"></div>
 <div class="sideov" onclick="lateral(false)"></div><aside class="side" id="side" aria-hidden="true"></aside>
 <script>
 const $=s=>document.querySelector(s);
