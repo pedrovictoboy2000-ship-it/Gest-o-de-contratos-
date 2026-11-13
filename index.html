@@ -172,23 +172,30 @@ const th=(k,l)=>(tab==="contrato"||tab==="ata"||tab==="painel")?`<th class="sort
 const prog=c=>{const f=fimAtual(c);if(!c.inicio||!f)return"";const a=new Date(c.inicio+"T00:00:00"),b=new Date(f+"T00:00:00"),p=Math.max(0,Math.min(100,(hoje()-a)/(b-a)*100));return`<div class="bar"><i class="${sem(c)[0]}" style="width:${p}%"></i></div>`};
 function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2200)}
 async function carregarDadosRelatorio(){
-  // Carga inicial idempotente: não duplica por tipo+número e não apaga dados já cadastrados pelo usuário.
-  const campos=['empresa','cnpj','unidade','licitacao','modalidade','certame','processo','statusFonte','assinatura','inicio','fim','valor','valorTotalRelatorio','valorEventoMaisRecente','valorFonteTipo','publicacao','objeto','fundamentacao','categoria','prazoPagamento','gestorFonte','dataBaseRelatorio','origemRelatorio'];
+  // Carga inicial: cada registro do relatório é importado UMA única vez.
+  // Depois disso nada é recriado nem sobrescrito: o que você editar ou excluir continua do jeito que ficou.
   const seeds=[...(DADOS_INICIAIS.contratos||[]),...(DADOS_INICIAIS.atas||[])];
+  const chave=x=>x.tipo+"|"+x.numero;
+  let vistos=null;try{vistos=JSON.parse(ls.get("gc_seed_vistos")||"null")}catch(e){}
+  const primeiraVez=!Array.isArray(vistos),bancoJaTinha=docs.length>0;
+  if(primeiraVez)vistos=[];
+  const campos=['empresa','cnpj','unidade','licitacao','modalidade','certame','processo','statusFonte','assinatura','inicio','fim','valor','valorTotalRelatorio','valorEventoMaisRecente','valorFonteTipo','publicacao','objeto','fundamentacao','categoria','prazoPagamento','gestorFonte','dataBaseRelatorio','origemRelatorio'];
   for(const seed of seeds){
+    const k=chave(seed);if(vistos.includes(k))continue;
     const atual=docs.find(x=>x.tipo===seed.tipo&&String(x.numero)===String(seed.numero));
-    if(!atual){await dbPut('contratos',seed);continue;}
-    const combinado={...seed,...atual};
-    for(const k of campos){if((atual[k]===undefined||atual[k]===null||atual[k]==='')&&seed[k]!==undefined&&seed[k]!==null&&seed[k]!=='')combinado[k]=seed[k];}
-    const eventosAtuais=Array.isArray(atual.eventos)?atual.eventos:[];
-    const assinaturaEvento=e=>[e.tipo||'',e.data||'',e.novoFim||'',e.desc||''].join('|');
-    const chaves=new Set(eventosAtuais.map(assinaturaEvento));
-    combinado.eventos=[...eventosAtuais,...(seed.eventos||[]).filter(e=>!chaves.has(assinaturaEvento(e)))];
-    combinado.arqs=Array.isArray(atual.arqs)?atual.arqs:(seed.arqs||[]);
-    combinado.prov=Array.isArray(atual.prov)?atual.prov:(seed.prov||[]);
-    combinado.itens=Array.isArray(atual.itens)?atual.itens:(seed.itens||[]);
-    await dbPut('contratos',combinado);
+    if(!atual){
+      // banco já existia antes desta versão e o registro não está nele: foi excluído por você, então não volta.
+      if(!(primeiraVez&&bancoJaTinha))await dbPut('contratos',seed);
+    }else if(primeiraVez){
+      // primeira abertura nesta versão: só completa campos vazios, sem mexer no que você já tem.
+      const comb={...atual};
+      for(const f of campos){if((atual[f]===undefined||atual[f]===null||atual[f]==='')&&seed[f]!==undefined&&seed[f]!==null&&seed[f]!=='')comb[f]=seed[f]}
+      for(const f of ['eventos','itens','prov'])if(!(atual[f]||[]).length&&(seed[f]||[]).length)comb[f]=seed[f];
+      await dbPut('contratos',comb);
+    }
+    vistos.push(k);
   }
+  ls.set("gc_seed_vistos",JSON.stringify(vistos));
   docs=await dbGetAll('contratos');
 }
 async function init(){
@@ -204,14 +211,14 @@ async function save(c){
   try{await dbPut("contratos",c);const i=docs.findIndex(x=>x.id===c.id);i<0?docs.push(c):docs[i]=c;render();toast("✔ Salvo neste computador");return true}
   catch(e){console.error(e);aviso("Não foi possível salvar neste computador: "+(e.message||"erro")+". Verifique o espaço disponível no navegador.");return false}
 }
-async function del(id){if(!await askOk("Excluir definitivamente este registro e seus PDFs?"))return;const c=get(id);docs=docs.filter(x=>x.id!==id);sel=null;tab="contrato";render();try{await dbDelete("contratos",id);for(const d of arqs(c))if(d.id)await dbDelete("pdfs",d.id);for(const e of (c.eventos||[]))for(const d of (e.docs||[]))if(d.id)await dbDelete("pdfs",d.id)}catch(e){aviso("Falha ao excluir: "+(e.message||e.code))}}
+async function del(id){if(!await askOk("Excluir definitivamente este registro e seus PDFs?"))return;const c=get(id);docs=docs.filter(x=>x.id!==id);sel=null;if(tab==="det")tab=(c.tipo==="ata"?"ata":"contrato");render();try{await dbDelete("contratos",id);for(const d of arqs(c))if(d.id)await dbDelete("pdfs",d.id);for(const e of (c.eventos||[]))for(const d of (e.docs||[]))if(d.id)await dbDelete("pdfs",d.id)}catch(e){aviso("Falha ao excluir: "+(e.message||e.code))}}
 function aviso(t){$("#mo").innerHTML=`<div class="modal"><div><div class="msg e">${esc(t)}</div><button class="btn" onclick="$('#mo').innerHTML=''">Fechar</button></div></div>`}
 function alertas(){
   const b={30:[],60:[],90:[]};docs.forEach(c=>{const d=dias(c);if(d===null||d<0)return;(d<=30?b[30]:d<=60?b[60]:d<=90?b[90]:null)?.push(c)});
   const n=b[30].length+b[60].length+b[90].length,NT=notas().filter(x=>x.notif);if(!n&&!NT.length)return;
   const blk=(t,k,cl)=>b[k].length?`<h3><span class="pill ${cl}">${t}</span></h3>`+b[k].sort((a,z)=>dias(a)-dias(z)).map(c=>`<div class="al" onclick="abrir('${c.id}')"><span><b class="num">${esc(num(c))}</b> – ${esc(c.empresa)}</span><span class="sub">${br(fimAtual(c))} · ${dias(c)}d</span></div>`).join(""):"";
-  const nb=NT.length?`<h3><span class="pill x">Anotações (${NT.length})</span></h3>`+NT.map(x=>`<div class="al" style="cursor:default"><span><b>${esc(x.titulo||"Sem título")}</b>${x.data?` <span class="chip">${br(x.data)}</span>`:""}<div class="sub">${esc((x.texto||"").slice(0,160))}</div></span><a class="rm" onclick="dispensar('${x.id}')">✕ excluir notificação</a></div>`).join(""):"";
-  $("#mo").innerHTML=`<div class="modal"><div><h2 style="margin-top:0">🔔 Notificações</h2>${nb}${n?`<h3 style="margin-bottom:0">Vencimentos próximos (${n})</h3>`:""}${blk("Até 30 dias","30","r")}${blk("31 a 60 dias","60","y")}${blk("61 a 90 dias","90","y")}<br><button class="btn" onclick="$('#mo').innerHTML=''">Entendi</button></div></div>`}
+  const nb=NT.length?`<h3 style="margin:18px 0 8px"><span class="pill x">📝 Minhas anotações (${NT.length})</span></h3>`+NT.map(x=>`<div class="al" style="cursor:default;align-items:flex-start"><span style="flex:1;min-width:0"><b>${esc(x.titulo||"Sem título")}</b>${x.data?` <span class="chip">${br(x.data)}</span>`:""}<div class="nota" style="margin:4px 0 0">${esc(x.texto||"")}</div></span><span style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;white-space:nowrap"><a class="rm" onclick="editarNotaAviso('${x.id}')">✎ editar</a><a class="rm" onclick="dispensar('${x.id}')">✕ excluir notificação</a></span></div>`).join(""):"";
+  $("#mo").innerHTML=`<div class="modal"><div><h2 style="margin-top:0">🔔 Notificações</h2>${n?`<h3 style="margin-bottom:6px">Vencimentos próximos (${n})</h3>`:""}${blk("Até 30 dias","30","r")}${blk("31 a 60 dias","60","y")}${blk("61 a 90 dias","90","y")}${nb}<br><button class="btn" onclick="$('#mo').innerHTML=''">Entendi</button></div></div>`}
 function abrir(id){$("#mo").innerHTML="";sel=id;tab="det";render()}
 function setTab(t){tab=t;sel=null;render()}
 function render(){
@@ -225,12 +232,12 @@ function render(){
   if(tab==="painel")a.innerHTML=painel();else if(tab==="contrato"||tab==="ata")a.innerHTML=lista(tab);
   else if(tab==="prov")a.innerHTML=provTodas();else if(tab==="config")a.innerHTML=config();else if(tab==="notas")a.innerHTML=anotacoes();else if(tab==="cal")a.innerHTML=calendario();else if(tab==="novo"){if(!$("#pf")){a.innerHTML=novo();bindNovo()}}else{a.innerHTML=detalhe();totI()}
 }
-function linhas(l){return`<div class="tw"><table><thead><tr>${th("numero","Nº")}${th("empresa","Empresa")}${th("objeto","Objeto")}${th("assinatura","Assinatura")}${th("fim","Vigência")}${th("fim","Situação")}</tr></thead><tbody>${l.map(c=>{const[s,t]=sem(c);return`<tr onclick="abrir('${c.id}')"><td><span class="num">${esc(c.numero)}</span><div class="sub">${c.tipo==="ata"?"Ata":"Contrato"}</div></td><td>${esc(c.empresa)}</td><td>${esc((c.objeto||"").slice(0,120))}</td><td>${br(c.assinatura)}</td><td>${br(c.inicio)} a <b>${br(fimAtual(c))}</b>${prog(c)}</td><td><span class="pill ${s}">${s==="x"?t:s==="r"?"Vermelho · "+t:s==="y"?"Amarelo · "+t:"Verde · "+t}</span>${(c.eventos||[]).some(e=>e.tipo==="Não prorrogação")?'<div class="sub" style="color:var(--r);font-weight:600">Não prorrogar</div>':""}</td></tr>`}).join("")}</tbody></table></div>${l.length?"":'<div class="emp">Nenhum registro encontrado.</div>'}`}
+function linhas(l){return`<div class="tw"><table><thead><tr>${th("numero","Nº")}${th("empresa","Empresa")}${th("objeto","Objeto")}${th("assinatura","Assinatura")}${th("fim","Vigência")}${th("fim","Situação")}<th>Ações</th></tr></thead><tbody>${l.map(c=>{const[s,t]=sem(c);return`<tr onclick="abrir('${c.id}')"><td><span class="num">${esc(c.numero)}</span><div class="sub">${c.tipo==="ata"?"Ata":"Contrato"}</div></td><td>${esc(c.empresa)}</td><td>${esc((c.objeto||"").slice(0,120))}</td><td>${br(c.assinatura)}</td><td>${br(c.inicio)} a <b>${br(fimAtual(c))}</b>${prog(c)}</td><td><span class="pill ${s}">${s==="x"?t:s==="r"?"Vermelho · "+t:s==="y"?"Amarelo · "+t:"Verde · "+t}</span>${(c.eventos||[]).some(e=>e.tipo==="Não prorrogação")?'<div class="sub" style="color:var(--r);font-weight:600">Não prorrogar</div>':""}</td><td style="white-space:nowrap"><button class="btn s sm" title="Editar" onclick="event.stopPropagation();editar('${c.id}')">✎</button> <button class="btn s sm" title="Excluir" onclick="event.stopPropagation();del('${c.id}')">🗑</button></td></tr>`}).join("")}</tbody></table></div>${l.length?"":'<div class="emp">Nenhum registro encontrado.</div>'}`}
 function painel(){
   const v={g:0,y:0,r:0,x:0};docs.forEach(c=>v[sem(c)[0]]++);
   const prox=docs.filter(c=>{const d=dias(c);return d!==null&&d>=0&&d<=90}).sort((a,b)=>dias(a)-dias(b));
   const k=(c,l,d)=>`<div class="kpi ${c} ${fs===c?"on":""}" onclick="fs=fs==='${c}'?'':'${c}';render()"><b>${v[c]}</b><span>${l}</span></div>`;
-  return`<div class="backup-tools"><button class="btn s sm" onclick="exportarBackup()">⬇ Fazer backup dos dados e PDFs</button><label class="btn s sm" style="margin:0;cursor:pointer">⬆ Restaurar backup<input type="file" accept="application/json,.json" style="display:none" onchange="importarBackup(this.files[0])"></label></div><div class="storage-note">Armazenamento local ativo: seus registros e PDFs ficam neste navegador/computador. A carga inicial foi importada dos relatórios oficiais; os PDFs dos instrumentos ainda devem ser anexados por você. Faça backups periódicos.</div><div class="kpis">${k("g","Verde · mais de 90 dias")}${k("y","Amarelo · 31 a 90 dias")}${k("r","Vermelho · 30 dias ou menos")}${k("x","Vencidos / sem data")}</div>${lista("all")}`}
+  return`<div class="backup-tools"><button class="btn s sm" onclick="exportarBackup()">⬇ Fazer backup dos dados e PDFs</button><button class="btn s sm" onclick="alertas()">🔔 Ver avisos</button><label class="btn s sm" style="margin:0;cursor:pointer">⬆ Restaurar backup<input type="file" accept="application/json,.json" style="display:none" onchange="importarBackup(this.files[0])"></label></div><div class="storage-note">Armazenamento local ativo: seus registros e PDFs ficam neste navegador/computador. A carga inicial foi importada dos relatórios oficiais; os PDFs dos instrumentos ainda devem ser anexados por você. Faça backups periódicos.</div><div class="kpis">${k("g","Verde · mais de 90 dias")}${k("y","Amarelo · 31 a 90 dias")}${k("r","Vermelho · 30 dias ou menos")}${k("x","Vencidos / sem data")}</div>${lista("all")}`}
 function lista(t){
   const l=docs.filter(c=>(t==="all"||c.tipo===t)&&(!fs||sem(c)[0]===fs)&&(!q||(c.numero+c.empresa+c.objeto).toLowerCase().includes(q.toLowerCase()))).sort(cmp);
   return`<div class="tools"><input id="qs" placeholder="Pesquisar por número, empresa ou objeto…  (atalho: /)" value="${esc(q)}" oninput="q=this.value;busca()"><select onchange="fs=this.value;render()"><option value="">Todas as situações</option>${[["g","Verde"],["y","Amarelo"],["r","Vermelho"],["x","Vencido / sem data"]].map(([k,l])=>`<option value="${k}" ${fs===k?"selected":""}>${l}</option>`).join("")}</select><select onchange="sk=this.value;sd=1;render()">${[["criado","Ordem de cadastro"],["fim","Vencimento"],["assinatura","Assinatura"],["numero","Número"]].map(([k,l])=>`<option value="${k}" ${sk===k?"selected":""}>${l}</option>`).join("")}</select><button class="btn s" onclick="sd=-sd;render()" title="Inverter ordem">⇅</button><button class="btn" onclick="setTab('novo')">+ ${t==="ata"?"Ata":t==="all"?"Novo":"Contrato"}</button></div><div id="lt">${linhas(l)}</div>`}
@@ -242,7 +249,7 @@ function detalhe(){
   const c=get(sel);if(!c)return'<div class="emp">Registro não encontrado.</div>';const[s,l]=sem(c);
   const ev=[{tipo:"Contratação original",data:c.assinatura||c.inicio,desc:`Vigência ${br(c.inicio)} a ${br(c.fim)}${c.valor?" · R$ "+c.valor:""}`},...(c.eventos||[]).map((e,i)=>({...e,_i:i}))].sort((a,b)=>(a.data||"").localeCompare(b.data||""));
   return`<div class="row sb" style="margin-bottom:14px"><button class="btn s" onclick="setTab('${c.tipo}')">← Voltar</button><span class="pill ${s}" style="font-size:14px">${s==="x"?l:(s==="r"?"Vermelho":s==="y"?"Amarelo":"Verde")+" · "+l}</span></div>
-<div class="card"><div class="row sb"><h2 style="margin:0">${esc(num(c))} ${(c.eventos||[]).some(e=>e.tipo==="Não prorrogação")?'<span class="nb">Não prorrogar</span>':""}</h2><span class="row">${arqs(c)[0]?`${pdfLink(arqs(c)[0],"📄 Abrir PDF")}`:'<span class="chip">PDF não anexado</span>'}<button class="btn s sm" onclick="del('${c.id}')">Excluir</button></span></div><br>
+<div class="card"><div class="row sb"><h2 style="margin:0">${esc(num(c))} ${(c.eventos||[]).some(e=>e.tipo==="Não prorrogação")?'<span class="nb">Não prorrogar</span>':""}</h2><span class="row">${arqs(c)[0]?`${pdfLink(arqs(c)[0],"📄 Abrir PDF")}`:'<span class="chip">PDF não anexado</span>'}<button class="btn s sm" onclick="editar('${c.id}')">✎ Editar dados</button><button class="btn s sm" onclick="del('${c.id}')">🗑 Excluir</button></span></div><br>
 <dl><dt>Empresa</dt><dd>${esc(c.empresa)}</dd><dt>Vigência</dt><dd>${br(c.inicio)} a ${br(c.fim)}${fimAtual(c)!==c.fim?` → <b>atual: ${br(fimAtual(c))}</b>`:""}</dd>${c.assinatura?`<dt>Assinatura</dt><dd>${br(c.assinatura)}</dd>`:""}${c.valor?`<dt>Valor</dt><dd>R$ ${esc(c.valor)}</dd>`:""}<dt>Objeto</dt><dd>${esc(c.objeto)}</dd></dl><div class="card" style="margin-top:14px;background:var(--bg2);box-shadow:none"><h3>Informações complementares do relatório</h3><dl>
 ${c.cnpj?`<dt>CNPJ/CPF</dt><dd>${esc(c.cnpj)}</dd>`:""}
 ${c.unidade?`<dt>Unidade gestora</dt><dd>${esc(c.unidade)}</dd>`:""}
@@ -259,11 +266,11 @@ ${c.gestorFonte?`<dt>Gestor no relatório</dt><dd>${esc(c.gestorFonte)}</dd>`:""
 ${c.valorTotalRelatorio?`<dt>Valor total no relatório</dt><dd>R$ ${esc(c.valorTotalRelatorio)}</dd>`:""}
 ${!c.assinatura?`<dt>Data de assinatura</dt><dd>Não informada no relatório consultado</dd>`:""}
 </dl><div class="sub" style="margin-top:8px">Dados importados dos relatórios oficiais. Confira o instrumento original antes de utilizar as informações em atos administrativos.</div></div><div class="row" style="margin-top:16px;gap:20px"><div class="big"><b>${dias(c)??"—"}</b><span>dias restantes</span></div><div style="flex:1;min-width:180px">${prog(c)}<div class="row sb sub"><span>${br(c.inicio)}</span><span>${br(fimAtual(c))}</span></div></div></div></div>
-<div class="two"><div class="card"><h3>Providências necessárias</h3>${(c.prov||[]).map((p,i)=>`<div class="pv"><input type="checkbox" ${p.done?"checked":""} onchange="tgl('${c.id}',${i})"><span style="flex:1;${p.done?"text-decoration:line-through;color:var(--mu)":""}">${esc(p.t)}</span><input type="text" placeholder="Observação" value="${esc(p.obs||"")}" onchange="obs('${c.id}',${i},this.value)"></div>`).join("")||'<div class="sub">Nenhuma providência registrada.</div>'}<br><div class="row"><select id="np" style="flex:1">${PROV.map(p=>`<option>${p}</option>`).join("")}<option>Outra…</option></select><button class="btn s" onclick="addP('${c.id}')">+ Adicionar</button></div></div>
-<div class="card"><h3>Linha do tempo</h3><div class="tl">${ev.map(e=>`<div style="--c:${TC(e.tipo)}"><b>${esc(e.tipo)}</b> <span class="sub">· ${br(e.data)}</span>${e._i!=null?` <a class="rm" onclick="delE('${c.id}',${e._i})">remover</a>`:""}<br>${esc(e.desc||"")}${(e.docs||[]).map(d=>`<br>${pdfLink(d,"📎 "+esc(d.nome))}`).join("")}${e.novoFim?`<br><span class="chip">Nova vigência: ${br(e.novoFim)}</span>`:""}</div>`).join("")}<div class="now"><b>Prazo atual</b> <span class="sub">· ${br(fimAtual(c))}</span></div></div></div></div>
+<div class="two"><div class="card"><h3>Providências necessárias</h3>${(c.prov||[]).map((p,i)=>`<div class="pv"><input type="checkbox" ${p.done?"checked":""} onchange="tgl('${c.id}',${i})"><span style="flex:1;${p.done?"text-decoration:line-through;color:var(--mu)":""}">${esc(p.t)}</span><input type="text" placeholder="Observação" value="${esc(p.obs||"")}" onchange="obs('${c.id}',${i},this.value)"><a class="rm" title="Remover providência" onclick="delP('${c.id}',${i})">✕</a></div>`).join("")||'<div class="sub">Nenhuma providência registrada.</div>'}<br><div class="row"><select id="np" style="flex:1">${PROV.map(p=>`<option>${p}</option>`).join("")}<option>Outra…</option></select><button class="btn s" onclick="addP('${c.id}')">+ Adicionar</button></div></div>
+<div class="card"><h3>Linha do tempo</h3><div class="tl">${ev.map(e=>`<div style="--c:${TC(e.tipo)}"><b>${esc(e.tipo)}</b> <span class="sub">· ${br(e.data)}</span>${e._i!=null?` <a class="rm" onclick="editE('${c.id}',${e._i})">editar</a><a class="rm" onclick="delE('${c.id}',${e._i})">remover</a>`:""}<br>${esc(e.desc||"")}${(e.docs||[]).map(d=>`<br>${pdfLink(d,"📎 "+esc(d.nome))}`).join("")}${e.novoFim?`<br><span class="chip">Nova vigência: ${br(e.novoFim)}</span>`:""}</div>`).join("")}<div class="now"><b>Prazo atual</b> <span class="sub">· ${br(fimAtual(c))}</span></div></div></div></div>
 <div class="card"><h3>Documentos do contrato (PDF)</h3>${arqs(c).map((d,i)=>`<div class="al">${pdfLink(d,"📄 "+esc(d.nome))}<span><a class="rm" onclick="renA('${c.id}',${i})">renomear</a><a class="rm" onclick="delA('${c.id}',${i})">remover</a></span></div>`).join("")||'<div class="sub" style="margin-bottom:8px">Nenhum PDF anexado.</div>'}<div class="row" style="margin-top:10px"><input type="file" id="af" accept="application/pdf" multiple style="flex:1;min-width:200px"><button class="btn sm" id="ba" onclick="addA('${c.id}')">+ Anexar PDF</button></div></div>
 <div class="card"><h3>Itens licitados</h3><div class="tw"><table style="min-width:0"><thead><tr><th>Item</th><th style="width:110px">Quantidade</th><th style="width:140px">Valor (R$)</th><th style="width:36px"></th></tr></thead><tbody id="ib">${(c.itens||[]).map(rowI).join("")||rowI({})}</tbody></table></div><div class="row sb" style="margin-top:12px"><span><button class="btn s sm" onclick="$('#ib').insertAdjacentHTML('beforeend',rowI({}))">+ Linha</button> <button class="btn sm" onclick="saveI('${c.id}')">Salvar itens</button></span><span><span class="sub">Total (quantidade × valor):</span> <b id="ti"></b></span></div></div>
-${(()=>{const L=(c.eventos||[]).flatMap(e=>(e.docs||[]).map(d=>({...d,tipo:e.tipo,data:e.data})));return L.length?`<div class="card"><h3>Documentos anexados</h3>${L.map(d=>`<div class="al" style="--c:${TC(d.tipo)}">${pdfLink(d,"📎 "+esc(d.nome))}<span class="sub">${esc(d.tipo)} · ${br(d.data)}</span></div>`).join("")}</div>`:""})()}
+${(()=>{const L=(c.eventos||[]).flatMap((e,i)=>(e.docs||[]).map((d,j)=>({...d,tipo:e.tipo,data:e.data,_i:i,_j:j})));return L.length?`<div class="card"><h3>Documentos anexados</h3>${L.map(d=>`<div class="al" style="--c:${TC(d.tipo)}">${pdfLink(d,"📎 "+esc(d.nome))}<span class="sub">${esc(d.tipo)} · ${br(d.data)}<a class="rm" onclick="delED('${c.id}',${d._i},${d._j},false)">remover PDF</a></span></div>`).join("")}</div>`:""})()}
 <div class="card"><h3>Registrar o que aconteceu neste contrato</h3><div class="grid"><div><label>Tipo</label><select id="et">${Object.keys(EVT).map(k=>`<option>${k}</option>`).join("")}</select></div><div><label>Data</label><input type="date" id="ed"></div><div><label>Nova vigência (se houver)</label><input type="date" id="en"></div></div><label>Descrição</label><input id="edc"><div class="grid"><div><label>Anexar PDF(s) desta ocorrência</label><input type="file" id="ef" accept="application/pdf" multiple></div><div><label>Nome do documento (opcional)</label><input id="enm" placeholder="Ex.: Notificação 012/2026"></div></div><div class="sub">Sem nome, o arquivo é nomeado com o tipo + a descrição.</div><br><button class="btn" id="be" onclick="addE('${c.id}')">Registrar na linha do tempo</button></div>`}
 async function tgl(id,i){const c={...get(id)};c.prov=c.prov.map((p,j)=>j===i?{...p,done:!p.done}:p);await save(c)}
 async function obs(id,i,v){const c={...get(id)};c.prov=c.prov.map((p,j)=>j===i?{...p,obs:v}:p);await save(c)}
@@ -345,6 +352,46 @@ function calendario(){
   let cells=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(x=>`<div class="h">${x}</div>`).join("")+'<div style="background:none"></div>'.repeat(f.getDay());
   for(let d=1;d<=nd;d++){const k=calY+"-"+String(calM+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");cells+=`<div${k===hoje0()?' style="outline:2px solid var(--pr)"':""}><b>${d}</b>${(ev[k]||[]).map(e=>`<span class="ev2" style="background:${e[2]}" title="${esc(e[0])}" onclick="evClick('${e[1]}')">${esc(e[0])}</span>`).join("")}</div>`}
   return`<div class="card"><div class="row sb"><button class="btn s sm" onclick="calMove(-1)">←</button><b style="text-transform:capitalize;font-size:16px">${f.toLocaleDateString("pt-BR",{month:"long",year:"numeric"})}</b><button class="btn s sm" onclick="calMove(1)">→</button></div><div class="cal">${cells}</div><div class="sub" style="margin-top:12px">Vermelho: vencimentos · Cinza: assinaturas · Dourado: anotações · Demais cores: ocorrências dos contratos. Clique num evento para abrir.</div></div>`}
+
+
+// ===== Edição de dados, ocorrências e exclusões =====
+const CAMPOS_ED=[["numero","Número *"],["empresa","Empresa *"],["cnpj","CNPJ/CPF"],["unidade","Unidade gestora"],["licitacao","Licitação"],["modalidade","Modalidade"],["certame","Certame"],["processo","Processo"],["statusFonte","Status"],["assinatura","Data de assinatura","date"],["inicio","Início da vigência","date"],["fim","Fim da vigência (original) *","date"],["publicacao","Data de publicação","date"],["valor","Valor (R$)"],["categoria","Categoria"],["prazoPagamento","Prazo de pagamento (dias)"],["gestorFonte","Gestor"]];
+const ISO=/^\d{4}-\d{2}-\d{2}$/;
+const mantem=(v,o)=>v||((o&&!ISO.test(o))?o:"");
+function editar(id){
+  const c=get(id);if(!c)return;
+  const f=([k,l,t])=>`<div><label>${l}</label><input id="e_${k}" type="${t||"text"}" value="${esc(c[k]||"")}"></div>`;
+  $("#mo").innerHTML=`<div class="modal"><div><h2 style="margin-top:0">✎ Editar ${esc(num(c))}</h2><div class="grid"><div><label>Tipo</label><select id="e_tipo"><option value="contrato" ${c.tipo!=="ata"?"selected":""}>Contrato</option><option value="ata" ${c.tipo==="ata"?"selected":""}>Ata de registro de preços</option></select></div>${CAMPOS_ED.map(f).join("")}</div><label>Objeto / descrição</label><textarea id="e_objeto" rows="4">${esc(c.objeto||"")}</textarea><label>Fundamentação</label><textarea id="e_fundamentacao" rows="2">${esc(c.fundamentacao||"")}</textarea>${fimAtual(c)!==c.fim?`<div class="msg w">O prazo atual (${br(fimAtual(c))}) vem de uma ocorrência com nova vigência. Para mudar esse prazo, use “editar” na linha do tempo.</div>`:""}<div id="ee"></div><br><div class="row"><button class="btn" onclick="salvarEdicao('${c.id}')">Salvar alterações</button><button class="btn s" onclick="$('#mo').innerHTML=''">Cancelar</button></div></div></div>`}
+async function salvarEdicao(id){
+  const c0=get(id);if(!c0)return;
+  const er=m=>$("#ee").innerHTML=`<div class="msg e">${m}</div>`,g=k=>$("#e_"+k).value.trim();
+  const c={...c0,tipo:$("#e_tipo").value,objeto:$("#e_objeto").value.trim(),fundamentacao:$("#e_fundamentacao").value.trim()};
+  for(const [k,,t] of CAMPOS_ED)c[k]=t==="date"?mantem(g(k),c0[k]):g(k);
+  if(!c.numero||!c.empresa)return er("Preencha número e empresa.");
+  if(ISO.test(c.inicio||"")&&ISO.test(c.fim||"")&&c.fim<c.inicio)return er("O fim da vigência é anterior ao início. Revise as datas.");
+  $("#mo").innerHTML="";await save(c)}
+function editE(id,i){
+  const c=get(id),e=(c?.eventos||[])[i];if(!e)return;
+  const tipos=[...new Set([e.tipo,...Object.keys(EVT)].filter(Boolean))];
+  $("#mo").innerHTML=`<div class="modal"><div><h2 style="margin-top:0">✎ Editar ocorrência</h2><div class="grid"><div><label>Tipo</label><select id="x_t">${tipos.map(k=>`<option ${k===e.tipo?"selected":""}>${esc(k)}</option>`).join("")}</select></div><div><label>Data</label><input type="date" id="x_d" value="${esc(e.data||"")}"></div><div><label>Nova vigência (se houver)</label><input type="date" id="x_n" value="${esc(e.novoFim||"")}"></div></div><label>Descrição</label><input id="x_c" value="${esc(e.desc||"")}"><div style="margin-top:10px">${(e.docs||[]).map((d,j)=>`<div class="al" style="cursor:default"><span>📎 ${esc(d.nome)}</span><a class="rm" onclick="delED('${id}',${i},${j},true)">remover PDF</a></div>`).join("")}</div><label>Anexar mais PDF(s)</label><input type="file" id="x_f" accept="application/pdf" multiple><div id="ee"></div><br><div class="row"><button class="btn" id="x_s" onclick="salvarE('${id}',${i})">Salvar alterações</button><button class="btn s" onclick="$('#mo').innerHTML=''">Cancelar</button></div><div class="sub" style="margin-top:8px">Para apagar a nova vigência, deixe o campo vazio.</div></div></div>`}
+async function salvarE(id,i){
+  const c0=get(id),e=(c0?.eventos||[])[i];if(!e)return;
+  const err=m=>$("#ee").innerHTML=`<div class="msg e">${m}</div>`;
+  const data=mantem($("#x_d").value,e.data),novoFim=mantem($("#x_n").value,e.novoFim);
+  if(!data)return err("Informe a data.");
+  const b=$("#x_s");b.disabled=true;b.textContent="Salvando…";
+  const tipo=$("#x_t").value,desc=$("#x_c").value.trim(),fl=[...$("#x_f").files],dc=[...(e.docs||[])];
+  try{for(const f of fl)dc.push({nome:f.name.replace(/\.pdf$/i,""),id:await up(f)})}catch(x){console.error(x);b.disabled=false;b.textContent="Salvar alterações";return err("Não foi possível anexar o PDF: "+esc(x.message||x.code||"erro"))}
+  const c={...c0},ev=[...c.eventos];ev[i]={...e,tipo,data,novoFim,desc,docs:dc};c.eventos=ev;
+  $("#mo").innerHTML="";await save(c)}
+async function delED(id,i,j,reabrir){
+  if(!await askOk("Remover este PDF da ocorrência?")){if(reabrir)editE(id,i);return}
+  const c={...get(id)},ev=[...c.eventos],e={...ev[i]},L=[...(e.docs||[])],old=L.splice(j,1)[0];
+  e.docs=L;ev[i]=e;c.eventos=ev;
+  const ok=await save(c);if(ok&&old?.id)await dbDelete("pdfs",old.id);
+  if(reabrir)editE(id,i)}
+async function delP(id,i){if(!await askOk("Remover esta providência?"))return;const c={...get(id)};c.prov=(c.prov||[]).filter((_,j)=>j!==i);await save(c)}
+function editarNotaAviso(id){notaEd=id;$("#mo").innerHTML="";setTab("notas");scrollTo(0,0)}
 
 aplicarTema(ls.get("gc_tema")||"bordo");avatar();
 init();
