@@ -4,7 +4,7 @@
 <script>try{var t=localStorage.getItem("gc_tema");if(t)document.documentElement.setAttribute("data-tema",t)}catch(e){}</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1/dist/umd/supabase.js"></script>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff;--bg2:#f3f6fa;--sf:#fff;--tx:#2b3340;--mu:#6b7686;--bd:#e1e6ee;--nav:#5e1230;--nav2:#8a1c3f;--pr:#8a1c3f;--ln:#f6e6eb;--hv:#faf0f3;--ac:#c9962b;--g:#1e9e57;--y:#e5a400;--r:#d93a3a;--gb:#e3f5ea;--yb:#fff4d6;--rb:#fde4e4;--xb:#e9ecf0}
 /* ===== TEMAS (Configurações) ===== */
@@ -742,9 +742,10 @@ async function sair(){await flush();if(PEND.size&&!await askOk("Há alterações
 function telaAuth(msg){let a=$("#auth");const ev=$("#au_e")?.value||"";if(!a){a=document.createElement("div");a.id="auth";document.body.appendChild(a)}
   a.innerHTML=`<div class="card" style="max-width:380px;width:100%"><h2 style="margin-top:0">Gestão de contratos – Jundiá RN</h2><div class="sub">Entre com a sua conta para acessar seus dados em qualquer aparelho.</div>${msg?`<div class="msg i" style="margin-top:10px">${esc(msg)}</div>`:""}<label>E-mail</label><input id="au_e" type="email" autocomplete="username" value="${esc(ev)}"><label>Senha (mín. 6 caracteres)</label><input id="au_s" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')authGo('in')"><br><br><div class="row"><button class="btn" onclick="authGo('in')">Entrar</button><button class="btn s" onclick="authGo('up')">Criar conta</button></div><br><a class="rm" onclick="semConta()">Usar sem conta (somente neste aparelho)</a> · <a class="rm" onclick="telaConfig()">Servidor</a></div>`}
 async function authGo(m){const e=$("#au_e").value.trim(),s=$("#au_s").value;if(!e||s.length<6)return telaAuth("Informe o e-mail e uma senha com pelo menos 6 caracteres.");
-  const r=m==="in"?await sb.auth.signInWithPassword({email:e,password:s}):await sb.auth.signUp({email:e,password:s});
-  if(r.error)return telaAuth(/invalid login/i.test(r.error.message)?"E-mail ou senha incorretos.":r.error.message);
-  if(!r.data.session)return telaAuth("Conta criada. Confirme pelo link enviado ao seu e-mail e depois entre.");entrar(r.data.user)}
+  try{const r=m==="in"?await sb.auth.signInWithPassword({email:e,password:s}):await sb.auth.signUp({email:e,password:s});
+    if(r.error){const x=r.error.message||String(r.error);return telaAuth(/invalid login/i.test(x)?"E-mail ou senha incorretos.":/not confirmed/i.test(x)?"E-mail ainda não confirmado. Confirme pelo link enviado ao seu e-mail.":/already registered/i.test(x)?"Este e-mail já tem conta. Use \"Entrar\".":/api key|jwt/i.test(x)?"Chave do servidor inválida ("+x+"). Clique em \"Servidor\" e confira a chave.":x)}
+    if(!r.data.session)return telaAuth("Conta criada. Confirme pelo link enviado ao seu e-mail e depois entre.");
+    await entrar(r.data.user)}catch(x){console.error(x);telaAuth("Erro: "+(x.message||x)+". Se persistir, confira o servidor (link abaixo) e a conexão.")}}
 function telaConfig(){let a=$("#auth");if(!a){a=document.createElement("div");a.id="auth";document.body.appendChild(a)}
   a.innerHTML=`<div class="card" style="max-width:420px;width:100%"><h2 style="margin-top:0">Conectar ao servidor</h2><div class="sub">Cole os dados do seu projeto Supabase (Project Settings → API). Isso é feito uma vez em cada aparelho.</div><label>Project URL</label><input id="cf_u" placeholder="https://xxxx.supabase.co"><label>Chave anon (public)</label><input id="cf_k"><br><br><div class="row"><button class="btn" onclick="cfgSalva()">Salvar</button><button class="btn s" onclick="semConta()">Usar sem conta</button></div></div>`}
 function cfgSalva(){const u=$("#cf_u").value.trim(),k=$("#cf_k").value.trim();if(!/^https:\/\//.test(u)||k.length<20)return aviso("Informe a URL (https://…) e a chave anon.");_lsSet("gc_sb",JSON.stringify({u,k}));location.reload()}
