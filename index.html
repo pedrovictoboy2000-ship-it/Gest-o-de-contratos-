@@ -750,9 +750,7 @@ function telaConfig(){let a=$("#auth");if(!a){a=document.createElement("div");a.
   a.innerHTML=`<div class="card" style="max-width:420px;width:100%"><h2 style="margin-top:0">Conectar ao servidor</h2><div class="sub">Cole os dados do seu projeto Supabase (Project Settings → API). Isso é feito uma vez em cada aparelho.</div><label>Project URL</label><input id="cf_u" placeholder="https://xxxx.supabase.co"><label>Chave anon (public)</label><input id="cf_k"><br><br><div class="row"><button class="btn" onclick="cfgSalva()">Salvar</button><button class="btn s" onclick="semConta()">Usar sem conta</button></div></div>`}
 function cfgSalva(){const u=$("#cf_u").value.trim(),k=$("#cf_k").value.trim();if(!/^https:\/\//.test(u)||k.length<20)return aviso("Informe a URL (https://…) e a chave anon.");_lsSet("gc_sb",JSON.stringify({u,k}));location.reload()}
 function semConta(){$("#auth")?.remove();init()}
-async function boot(){let c={};try{c=JSON.parse(ls.get("gc_sb")||"{}")}catch(e){}const u=SB_URL||c.u,k=SB_KEY||c.k;
-  if(!u||!k)return telaConfig();if(!window.supabase){aviso("Não foi possível carregar o módulo de login (sem internet?). Abrindo em modo local.");return init()}
-  sb=window.supabase.createClient(u,k);const{data}=await sb.auth.getSession();data.session?entrar(data.session.user):telaAuth()}
+async function boot(){aplicarTema(ls.get("gc_tema")||"bordo");await init()}
 boot();
 </script>
 </body></html>
